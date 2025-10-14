@@ -39,7 +39,7 @@ const Navigation: React.FC = () => {
                   {isActive && (
                     <motion.div
                       layoutId="activeTab"
-                      className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 w-12 h-1 bg-blue-600 rounded-full"
+                      className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 w-8 h-1 bg-blue-600 rounded-full"
                       initial={false}
                       transition={{ type: "spring", stiffness: 500, damping: 30 }}
                     />

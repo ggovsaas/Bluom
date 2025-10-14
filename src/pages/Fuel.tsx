@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { API_ENDPOINTS } from '../config/api';
 import { 
   Plus, 
@@ -42,6 +43,7 @@ import MacroChart, { MacroChartMode } from '../components/MacroChart';
 const DEFAULT_IMAGE = 'https://cdn.pixabay.com/photo/2017/01/20/15/06/food-1995056_1280.png';
 
 const Fuel = () => {
+  const navigate = useNavigate();
   const { 
     profile, 
     dailyData, 
@@ -239,7 +241,8 @@ const Fuel = () => {
 
   const addCustomMeal = () => {
     if (!profile?.isPremium) {
-      alert('Premium feature! Upgrade to add unlimited meals.');
+      // Navigate to premium page instead of showing alert
+      navigate('/premium');
       return;
     }
     
@@ -609,20 +612,20 @@ const Fuel = () => {
           {/* Fixed 3-row layout with perfect vertical alignment */}
           <div className="space-y-3">
             {/* Row 1: Day names */}
-            <div className="grid grid-cols-7 gap-2">
+            <div className="grid grid-cols-7 gap-1 sm:gap-2">
               {weekDates.map((day, index) => (
                 <div key={`day-${index}`} className="text-center">
-                  <p className="text-sm font-medium text-gray-600">{day.day}</p>
+                  <p className="text-xs sm:text-sm font-medium text-gray-600">{day.day}</p>
                 </div>
               ))}
             </div>
 
             {/* Row 2: Day numbers */}
-            <div className="grid grid-cols-7 gap-2">
+            <div className="grid grid-cols-7 gap-1 sm:gap-2">
               {weekDates.map((day, index) => (
                 <div key={`date-${index}`} className="text-center">
                   <button
-                    className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium mx-auto transition-all
+                    className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium mx-auto transition-all
                       ${day.fullDate === selectedDate ? 'bg-blue-600 text-white shadow-lg scale-110' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
                     onClick={() => setSelectedDate(day.fullDate)}
                   >
@@ -633,7 +636,7 @@ const Fuel = () => {
             </div>
 
             {/* Row 3: Usage dots */}
-            <div className="grid grid-cols-7 gap-2">
+            <div className="grid grid-cols-7 gap-1 sm:gap-2">
               {weekDates.map((day, index) => (
                 <div key={`dot-${index}`} className="text-center">
                   <div className="flex justify-center">
@@ -641,10 +644,10 @@ const Fuel = () => {
                       <motion.div 
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
-                        className="w-2 h-2 bg-green-500 rounded-full shadow-sm" 
+                        className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full shadow-sm" 
                       />
                     ) : (
-                      <div className="w-2 h-2 bg-gray-200 rounded-full" />
+                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-gray-200 rounded-full" />
                     )}
                   </div>
                 </div>
