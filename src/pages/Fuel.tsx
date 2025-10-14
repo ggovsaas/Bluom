@@ -35,7 +35,6 @@ import {
 } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 import { PieChart as MacroPieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import MacroChart, { MacroChartMode } from '../components/MacroChart';
 
@@ -474,7 +473,6 @@ const Fuel = () => {
   };
 
   const [showRecipeMenu, setShowRecipeMenu] = useState(false);
-  const navigate = useNavigate();
 
   // 1. Add state for AddFoodModal
   const [showAddFoodModal, setShowAddFoodModal] = useState(false);

@@ -27,25 +27,26 @@ const Navigation: React.FC = () => {
           >
             {({ isActive }) => (
               <>
-                <motion.div
-                  animate={{
-                    scale: isActive ? 1.1 : 1,
-                    color: isActive ? '#3B82F6' : '#6B7280',
-                  }}
-                  transition={{ duration: 0.2 }}
-                  className="relative"
-                >
-                  <item.icon size={24} />
+                <div className="relative flex flex-col items-center">
+                  <motion.div
+                    animate={{
+                      scale: isActive ? 1.1 : 1,
+                      color: isActive ? '#3B82F6' : '#6B7280',
+                    }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <item.icon size={24} />
+                  </motion.div>
+                  <span className="text-xs mt-1 font-medium">{item.label}</span>
                   {isActive && (
                     <motion.div
                       layoutId="activeTab"
-                      className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 w-8 h-1 bg-blue-600 rounded-full"
+                      className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-8 h-1 bg-blue-600 rounded-full"
                       initial={false}
                       transition={{ type: "spring", stiffness: 500, damping: 30 }}
                     />
                   )}
-                </motion.div>
-                <span className="text-xs mt-1 font-medium">{item.label}</span>
+                </div>
               </>
             )}
           </NavLink>
