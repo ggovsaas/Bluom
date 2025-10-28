@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navigation from './components/Navigation';
+import LandingPage from './pages/LandingPage';
 import Onboarding from './pages/Onboarding';
 import Home from './pages/Home';
 import Fuel from './pages/Fuel';
@@ -22,6 +23,18 @@ import CreateRecipe from './pages/CreateRecipe';
 import MyRecipes from './pages/MyRecipes';
 import { UserProvider } from './context/UserContext';
 import './App.css';
+
+// Navigation component that only shows on app pages
+function AppNavigation() {
+  const location = useLocation();
+  const isLandingPage = location.pathname === '/';
+  
+  if (isLandingPage) {
+    return null;
+  }
+  
+  return <Navigation />;
+}
 
 function App() {
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -62,7 +75,8 @@ function App() {
               className="pb-20"
             >
               <Routes>
-                <Route path="/" element={<Home />} />
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/app" element={<Home />} />
                 <Route path="/fuel" element={<Fuel />} />
                 <Route path="/move" element={<Move />} />
                 <Route path="/wellness" element={<Wellness />} />
@@ -82,7 +96,7 @@ function App() {
               </Routes>
             </motion.div>
           </AnimatePresence>
-          <Navigation />
+          <AppNavigation />
         </div>
       </Router>
     </UserProvider>

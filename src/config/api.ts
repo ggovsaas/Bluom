@@ -10,15 +10,15 @@ const getApiBaseUrl = () => {
     return 'http://localhost:3001';
   }
   
-  // Production backend URL (default for all deployed environments)
-  return 'https://aifitnessapp-production.up.railway.app';
+  // Production backend URL (Vercel serverless functions)
+  return 'https://aifitnessapp.vercel.app';
 };
 
 // Force production URL for debugging
 const FORCE_PRODUCTION = true;
 const getApiBaseUrlForced = () => {
   if (FORCE_PRODUCTION) {
-    return 'https://aifitnessapp-production.up.railway.app';
+    return 'https://aifitnessapp.vercel.app';
   }
   return getApiBaseUrl();
 };
