@@ -14,6 +14,11 @@ const Header: React.FC = () => {
     localStorage.removeItem('aifit_user');
     localStorage.removeItem('aifit_signed_up');
     localStorage.removeItem('aifit_onboarding_completed');
+    localStorage.removeItem('aifit_profile');
+    localStorage.removeItem('aifit_daily_data');
+    localStorage.removeItem('aifit_food_entries');
+    localStorage.removeItem('aifit_exercise_entries');
+    localStorage.removeItem('aifit_last_active_date');
     navigate('/');
   };
 
@@ -30,6 +35,12 @@ const Header: React.FC = () => {
 
         {/* Right side - Login/User menu */}
         <div className="flex items-center space-x-4">
+          <Link
+            to="/"
+            className="text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-3 py-2 rounded-lg transition-colors"
+          >
+            Landing Page
+          </Link>
           {isLoggedIn ? (
             <div className="flex items-center space-x-3">
               <span className="text-sm text-gray-600">

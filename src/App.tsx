@@ -66,12 +66,13 @@ function App() {
     // Check if user is authenticated - stay logged in forever once logged in
     const user = localStorage.getItem('aifit_user');
     const hasSignedUp = localStorage.getItem('aifit_signed_up');
+    const hasCompletedOnboarding = localStorage.getItem('aifit_onboarding_completed');
     
     if (user) {
       // User is logged in
       setIsAuthenticated(true);
-      if (!hasSignedUp) {
-        // User logged in but needs to complete onboarding and signup
+      if (!hasSignedUp && !hasCompletedOnboarding) {
+        // User logged in but needs to complete onboarding first
         setShowOnboarding(true);
       }
     }
