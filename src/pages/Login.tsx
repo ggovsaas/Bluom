@@ -18,7 +18,21 @@ export default function Login() {
       // Simple mock authentication for now
       if (email && password) {
         localStorage.setItem('aifit_user', JSON.stringify({ email, name: email.split('@')[0] }));
-        navigate('/app');
+        
+        // Check if user has already signed up
+        const hasSignedUp = localStorage.getItem('aifit_signed_up');
+        const hasCompletedOnboarding = localStorage.getItem('aifit_onboarding_completed');
+        
+        if (hasSignedUp) {
+          // Returning user - go straight to app
+          navigate('/app');
+        } else if (hasCompletedOnboarding) {
+          // Completed onboarding but not signed up - go to signup
+          navigate('/signup');
+        } else {
+          // New user - go to onboarding
+          navigate('/onboarding');
+        }
       } else {
         setError('Please enter email and password');
       }
@@ -36,7 +50,21 @@ export default function Login() {
       name: 'Google User',
       provider: 'google'
     }));
-    navigate('/app');
+    
+    // Check if user has already signed up
+    const hasSignedUp = localStorage.getItem('aifit_signed_up');
+    const hasCompletedOnboarding = localStorage.getItem('aifit_onboarding_completed');
+    
+    if (hasSignedUp) {
+      // Returning user - go straight to app
+      navigate('/app');
+    } else if (hasCompletedOnboarding) {
+      // Completed onboarding but not signed up - go to signup
+      navigate('/signup');
+    } else {
+      // New user - go to onboarding
+      navigate('/onboarding');
+    }
   };
 
   return (

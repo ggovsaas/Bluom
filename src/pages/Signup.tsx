@@ -37,7 +37,9 @@ export default function Signup() {
         email: formData.email, 
         name: formData.name 
       }));
-      navigate('/onboarding');
+      localStorage.setItem('aifit_signed_up', 'true');
+      // User stays logged in forever after signup
+      navigate('/app');
     } catch (err) {
       setError('Signup failed. Please try again.');
     } finally {
@@ -52,7 +54,9 @@ export default function Signup() {
       name: 'Google User',
       provider: 'google'
     }));
-    navigate('/onboarding');
+    localStorage.setItem('aifit_signed_up', 'true');
+    // User stays logged in forever after signup
+    navigate('/app');
   };
 
   return (

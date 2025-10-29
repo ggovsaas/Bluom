@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { ChevronRight, ChevronLeft, Sparkles, Scale, Ruler, Info, X, SkipForward } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 
@@ -8,6 +9,7 @@ interface OnboardingProps {
 }
 
 const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<any>({});
   const [units, setUnits] = useState({
@@ -245,7 +247,8 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
     };
 
     updateProfile(profile);
-    onComplete();
+    localStorage.setItem('aifit_onboarding_completed', 'true');
+    navigate('/signup');
   };
 
   const skipOnboarding = () => {
@@ -281,7 +284,8 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
     };
 
     updateProfile(defaultProfile);
-    onComplete();
+    localStorage.setItem('aifit_onboarding_completed', 'true');
+    navigate('/signup');
   };
 
   const calculateBMR = (weightKg: number, heightCm: number, age: number, gender: string) => {

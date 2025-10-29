@@ -44,11 +44,16 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is authenticated
+    // Check if user is authenticated - stay logged in forever once logged in
     const user = localStorage.getItem('aifit_user');
     const hasCompletedOnboarding = localStorage.getItem('aifit_onboarding_completed');
+    const hasSignedUp = localStorage.getItem('aifit_signed_up');
     
-    if (user) {
+    if (user && hasSignedUp) {
+      // User is fully set up - no onboarding needed
+      setIsAuthenticated(true);
+    } else if (user && !hasSignedUp) {
+      // User logged in but needs to signup after onboarding
       setIsAuthenticated(true);
       if (!hasCompletedOnboarding) {
         setShowOnboarding(true);
