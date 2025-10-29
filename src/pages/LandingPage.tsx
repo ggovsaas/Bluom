@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
@@ -18,8 +18,18 @@ import {
   Instagram,
   Heart
 } from 'lucide-react';
+import { detectUserCurrency, getPricingForCurrency } from '../utils/currency';
 
 export default function LandingPage() {
+  const [userCurrency, setUserCurrency] = useState('EUR');
+  const [pricing, setPricing] = useState(getPricingForCurrency('EUR'));
+
+  useEffect(() => {
+    const detectedCurrency = detectUserCurrency();
+    setUserCurrency(detectedCurrency);
+    setPricing(getPricingForCurrency(detectedCurrency));
+  }, []);
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -84,12 +94,25 @@ export default function LandingPage() {
                     className="relative"
                   >
                     <div className="w-64 h-96 bg-gray-900 rounded-3xl p-2 shadow-2xl">
-                      <div className="w-full h-full bg-white rounded-2xl p-4">
-                        <div className="space-y-3">
-                          <div className="h-4 bg-blue-500 rounded w-3/4"></div>
-                          <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                          <div className="h-3 bg-gray-200 rounded w-2/3"></div>
-                          <div className="h-3 bg-gray-200 rounded w-1/3"></div>
+                      <div className="w-full h-full bg-white rounded-2xl overflow-hidden">
+                        <img 
+                          src="/images/app-store/screenshot-home-iphone.png" 
+                          alt="AiFit Home Dashboard"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            // Fallback to placeholder if image doesn't exist
+                            e.currentTarget.style.display = 'none';
+                            e.currentTarget.nextElementSibling.style.display = 'flex';
+                          }}
+                        />
+                        <div className="w-full h-full bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-4" style={{display: 'none'}}>
+                          <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mb-4">
+                            <span className="text-white text-2xl">📊</span>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-lg font-bold text-gray-900 mb-2">Daily Stats</div>
+                            <div className="text-sm text-gray-600">Track your progress</div>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -101,14 +124,24 @@ export default function LandingPage() {
                     className="relative -mt-8"
                   >
                     <div className="w-64 h-96 bg-gray-900 rounded-3xl p-2 shadow-2xl">
-                      <div className="w-full h-full bg-white rounded-2xl p-4">
-                        <div className="flex flex-col items-center space-y-4">
-                          <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                            <span className="text-white text-2xl font-bold">75%</span>
+                      <div className="w-full h-full bg-white rounded-2xl overflow-hidden">
+                        <img 
+                          src="/images/app-store/screenshot-fuel-iphone.png" 
+                          alt="AiFit Nutrition Tracking"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            // Fallback to placeholder if image doesn't exist
+                            e.currentTarget.style.display = 'none';
+                            e.currentTarget.nextElementSibling.style.display = 'flex';
+                          }}
+                        />
+                        <div className="w-full h-full bg-gradient-to-br from-green-50 to-emerald-100 flex flex-col items-center justify-center p-4" style={{display: 'none'}}>
+                          <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center mb-4">
+                            <span className="text-white text-2xl">🍎</span>
                           </div>
                           <div className="text-center">
-                            <div className="text-sm text-gray-600">Protein</div>
-                            <div className="text-xs text-gray-500">45g / 60g</div>
+                            <div className="text-lg font-bold text-gray-900 mb-2">Nutrition</div>
+                            <div className="text-sm text-gray-600">Track your macros</div>
                           </div>
                         </div>
                       </div>
@@ -289,19 +322,47 @@ export default function LandingPage() {
             >
               <div className="flex space-x-4">
                 <div className="w-64 h-96 bg-gray-900 rounded-3xl p-2 shadow-2xl">
-                  <div className="w-full h-full bg-white rounded-2xl p-4">
-                    <div className="space-y-3">
-                      <div className="h-4 bg-green-500 rounded w-3/4"></div>
-                      <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                      <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                  <div className="w-full h-full bg-white rounded-2xl overflow-hidden">
+                    <img 
+                      src="/images/app-store/screenshot-move-iphone.png" 
+                      alt="AiFit Workout Tracking"
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        // Fallback to placeholder if image doesn't exist
+                        e.currentTarget.style.display = 'none';
+                        e.currentTarget.nextElementSibling.style.display = 'flex';
+                      }}
+                    />
+                    <div className="w-full h-full bg-gradient-to-br from-orange-50 to-red-100 flex flex-col items-center justify-center p-4" style={{display: 'none'}}>
+                      <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-red-600 rounded-full flex items-center justify-center mb-4">
+                        <span className="text-white text-2xl">💪</span>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-lg font-bold text-gray-900 mb-2">Workouts</div>
+                        <div className="text-sm text-gray-600">Track your exercises</div>
+                      </div>
                     </div>
                   </div>
                 </div>
                 <div className="w-64 h-96 bg-gray-900 rounded-3xl p-2 shadow-2xl -mt-8">
-                  <div className="w-full h-full bg-white rounded-2xl p-4">
-                    <div className="flex flex-col items-center space-y-4">
-                      <div className="w-24 h-24 bg-gradient-to-r from-green-500 to-blue-600 rounded-full flex items-center justify-center">
-                        <span className="text-white text-2xl font-bold">85%</span>
+                  <div className="w-full h-full bg-white rounded-2xl overflow-hidden">
+                    <img 
+                      src="/images/app-store/screenshot-wellness-iphone.png" 
+                      alt="AiFit Wellness Tracking"
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        // Fallback to placeholder if image doesn't exist
+                        e.currentTarget.style.display = 'none';
+                        e.currentTarget.nextElementSibling.style.display = 'flex';
+                      }}
+                    />
+                    <div className="w-full h-full bg-gradient-to-br from-pink-50 to-purple-100 flex flex-col items-center justify-center p-4" style={{display: 'none'}}>
+                      <div className="w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center mb-4">
+                        <span className="text-white text-2xl">❤️</span>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-lg font-bold text-gray-900 mb-2">Wellness</div>
+                        <div className="text-sm text-gray-600">Track your health</div>
                       </div>
                     </div>
                   </div>
@@ -315,100 +376,452 @@ export default function LandingPage() {
       {/* Pricing Section */}
       <section id="pricing" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-bold text-center text-gray-900 mb-12">
-            Unlock Power Of AiFit
-          </h2>
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {/* Free Plan */}
+          <div className="text-center mb-16">
+            <div className="w-20 h-20 bg-gradient-to-r from-orange-400 to-yellow-500 rounded-full flex items-center justify-center mx-auto mb-6">
+              <span className="text-white text-3xl">👑</span>
+            </div>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              Upgrade to <span className="text-blue-600">Premium</span>
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Unlock the full potential of your fitness journey.
+            </p>
+          </div>
+
+          {/* Pricing Cards */}
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-16">
+            {/* 1 Month Trial */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="bg-white border-2 border-gray-200 rounded-2xl p-8 text-center"
+              className="bg-white border-2 border-gray-200 rounded-2xl p-8 text-center relative"
             >
-              <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <span className="text-white text-2xl font-bold">✨</span>
+              <div className="absolute -top-3 right-4">
+                <span className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold">Try Premium</span>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">Free</h3>
-              <div className="text-4xl font-bold text-gray-900 mb-6">$0 <span className="text-lg text-gray-500">/ mo</span></div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">1 Month Trial</h3>
+              <p className="text-gray-600 mb-6">Perfect for testing all features</p>
+              <div className="text-4xl font-bold text-gray-900 mb-2">{pricing.trial.formatted}</div>
+              <div className="text-gray-500 mb-8">/month</div>
               <ul className="space-y-4 mb-8 text-left">
                 <li className="flex items-center">
                   <Check className="text-green-500 mr-3" size={20} />
-                  <span>Custom daily macro goals</span>
+                  <span>All Premium features</span>
                 </li>
                 <li className="flex items-center">
                   <Check className="text-green-500 mr-3" size={20} />
-                  <span>Unlimited custom foods & recipes</span>
+                  <span>30-day money-back guarantee</span>
                 </li>
                 <li className="flex items-center">
                   <Check className="text-green-500 mr-3" size={20} />
-                  <span>Offline access</span>
-                </li>
-                <li className="flex items-center">
-                  <Check className="text-green-500 mr-3" size={20} />
-                  <span>Massive food database</span>
-                </li>
-                <li className="flex items-center">
-                  <Check className="text-green-500 mr-3" size={20} />
-                  <span>Basic AI coach</span>
+                  <span>Priority support</span>
                 </li>
               </ul>
-              <Link
-                to="/onboarding"
-                className="w-full inline-flex items-center justify-center px-6 py-3 border-2 border-gray-300 text-gray-900 font-semibold rounded-full hover:border-gray-400 transition-colors"
-              >
-                Get Started
-              </Link>
+              <button className="w-full px-6 py-3 bg-gray-200 text-gray-700 font-semibold rounded-full hover:bg-gray-300 transition-colors">
+                Start Free Trial
+              </button>
             </motion.div>
 
-            {/* Premium Plan */}
+            {/* Monthly Plan */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="bg-white border-2 border-gray-200 rounded-2xl p-8 text-center relative"
+            >
+              <div className="absolute -top-3 right-4">
+                <span className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold">Flexible</span>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">Monthly</h3>
+              <p className="text-gray-600 mb-6">Month-to-month flexibility</p>
+              <div className="text-4xl font-bold text-gray-900 mb-2">{pricing.monthly.formatted}</div>
+              <div className="text-gray-500 mb-8">/month</div>
+              <ul className="space-y-4 mb-8 text-left">
+                <li className="flex items-center">
+                  <Check className="text-green-500 mr-3" size={20} />
+                  <span>All Premium features</span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="text-green-500 mr-3" size={20} />
+                  <span>Cancel anytime</span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="text-green-500 mr-3" size={20} />
+                  <span>Monthly billing</span>
+                </li>
+              </ul>
+              <button className="w-full px-6 py-3 bg-gray-200 text-gray-700 font-semibold rounded-full hover:bg-gray-300 transition-colors">
+                Choose Plan
+              </button>
+            </motion.div>
+
+            {/* Annual Plan - Most Popular */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="bg-gradient-to-br from-pink-500 to-purple-600 rounded-2xl p-8 text-center text-white relative"
+              className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl p-8 text-center text-white relative"
             >
               <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                 <span className="bg-yellow-400 text-gray-900 px-4 py-1 rounded-full text-sm font-semibold">Most Popular</span>
               </div>
-              <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <span className="text-2xl">👑</span>
+              <div className="absolute -top-3 right-4">
+                <span className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold">Save 44%</span>
               </div>
-              <h3 className="text-2xl font-bold mb-2">Premium</h3>
-              <div className="text-4xl font-bold mb-6">$9.99 <span className="text-lg opacity-80">/ mo</span></div>
+              <h3 className="text-2xl font-bold mb-2">Annual</h3>
+              <p className="opacity-90 mb-6">Best value for committed users</p>
+              <div className="text-4xl font-bold mb-2">{pricing.annual.formatted}</div>
+              <div className="opacity-80 mb-8">/month</div>
               <ul className="space-y-4 mb-8 text-left">
                 <li className="flex items-center">
                   <Check className="text-white mr-3" size={20} />
-                  <span>Everything in Free plus...</span>
+                  <span>All Premium features</span>
                 </li>
                 <li className="flex items-center">
                   <Check className="text-white mr-3" size={20} />
-                  <span>AI food recognition</span>
+                  <span>2 months free</span>
                 </li>
                 <li className="flex items-center">
                   <Check className="text-white mr-3" size={20} />
-                  <span>Advanced AI coach</span>
+                  <span>Annual billing</span>
                 </li>
                 <li className="flex items-center">
                   <Check className="text-white mr-3" size={20} />
-                  <span>Barcode scanner</span>
-                </li>
-                <li className="flex items-center">
-                  <Check className="text-white mr-3" size={20} />
-                  <span>Export data reports</span>
-                </li>
-                <li className="flex items-center">
-                  <Check className="text-white mr-3" size={20} />
-                  <span>Priority support</span>
+                  <span>Best value</span>
                 </li>
               </ul>
-              <Link
-                to="/onboarding"
-                className="w-full inline-flex items-center justify-center px-6 py-3 bg-white text-gray-900 font-semibold rounded-full hover:bg-gray-100 transition-colors"
-              >
-                Start Premium
-              </Link>
+              <button className="w-full px-6 py-3 bg-white text-gray-900 font-semibold rounded-full hover:bg-gray-100 transition-colors">
+                Choose Plan
+              </button>
             </motion.div>
+          </div>
+
+          {/* Limited Time Offer */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl p-8 text-center text-white mb-16"
+          >
+            <div className="flex items-center justify-center mb-4">
+              <span className="text-2xl mr-2">⭐</span>
+              <span className="text-2xl font-bold">Limited Time Offer</span>
+            </div>
+            <p className="text-xl mb-2">
+              Get your first month FREE when you upgrade to annual plan. That's a {pricing.trial.formatted} value!
+            </p>
+            <p className="text-sm opacity-90">Offer expires in 3 days.</p>
+          </motion.div>
+
+          {/* Premium Features */}
+          <div className="mb-16">
+            <h3 className="text-3xl font-bold text-center text-gray-900 mb-12">Premium Features</h3>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {/* Nutrition */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.1 }}
+                className="text-center"
+              >
+                <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <span className="text-white text-2xl">🌍</span>
+                </div>
+                <h4 className="text-xl font-semibold text-gray-900 mb-4">Nutrition</h4>
+                <ul className="space-y-2 text-left">
+                  <li className="flex items-center text-sm">
+                    <Check className="text-green-500 mr-2" size={16} />
+                    <span>Unlimited meal logging</span>
+                  </li>
+                  <li className="flex items-center text-sm">
+                    <Check className="text-green-500 mr-2" size={16} />
+                    <span>Custom macro targets</span>
+                  </li>
+                  <li className="flex items-center text-sm">
+                    <Check className="text-green-500 mr-2" size={16} />
+                    <span>Recipe recommendations</span>
+                  </li>
+                  <li className="flex items-center text-sm">
+                    <Check className="text-green-500 mr-2" size={16} />
+                    <span>Nutrition analysis & insights</span>
+                  </li>
+                  <li className="flex items-center text-sm">
+                    <Check className="text-green-500 mr-2" size={16} />
+                    <span>Meal planning assistant</span>
+                  </li>
+                  <li className="flex items-center text-sm">
+                    <Check className="text-green-500 mr-2" size={16} />
+                    <span>Barcode scanner</span>
+                  </li>
+                  <li className="flex items-center text-sm">
+                    <Check className="text-green-500 mr-2" size={16} />
+                    <span>Custom food database</span>
+                  </li>
+                </ul>
+              </motion.div>
+
+              {/* Fitness */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="text-center"
+              >
+                <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <span className="text-white text-2xl">⚡</span>
+                </div>
+                <h4 className="text-xl font-semibold text-gray-900 mb-4">Fitness</h4>
+                <ul className="space-y-2 text-left">
+                  <li className="flex items-center text-sm">
+                    <Check className="text-green-500 mr-2" size={16} />
+                    <span>Unlimited workout routines</span>
+                  </li>
+                  <li className="flex items-center text-sm">
+                    <Check className="text-green-500 mr-2" size={16} />
+                    <span>Personalized training plans</span>
+                  </li>
+                  <li className="flex items-center text-sm">
+                    <Check className="text-green-500 mr-2" size={16} />
+                    <span>Video workout library</span>
+                  </li>
+                  <li className="flex items-center text-sm">
+                    <Check className="text-green-500 mr-2" size={16} />
+                    <span>Form analysis & tips</span>
+                  </li>
+                  <li className="flex items-center text-sm">
+                    <Check className="text-green-500 mr-2" size={16} />
+                    <span>Progress predictions</span>
+                  </li>
+                  <li className="flex items-center text-sm">
+                    <Check className="text-green-500 mr-2" size={16} />
+                    <span>Custom exercise creation</span>
+                  </li>
+                  <li className="flex items-center text-sm">
+                    <Check className="text-green-500 mr-2" size={16} />
+                    <span>Advanced workout analytics</span>
+                  </li>
+                </ul>
+              </motion.div>
+
+              {/* Wellness */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                className="text-center"
+              >
+                <div className="w-16 h-16 bg-gradient-to-r from-pink-500 to-rose-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <span className="text-white text-2xl">❤️</span>
+                </div>
+                <h4 className="text-xl font-semibold text-gray-900 mb-4">Wellness</h4>
+                <ul className="space-y-2 text-left">
+                  <li className="flex items-center text-sm">
+                    <Check className="text-green-500 mr-2" size={16} />
+                    <span>Advanced sleep analysis</span>
+                  </li>
+                  <li className="flex items-center text-sm">
+                    <Check className="text-green-500 mr-2" size={16} />
+                    <span>Mood pattern insights</span>
+                  </li>
+                  <li className="flex items-center text-sm">
+                    <Check className="text-green-500 mr-2" size={16} />
+                    <span>Stress management tools</span>
+                  </li>
+                  <li className="flex items-center text-sm">
+                    <Check className="text-green-500 mr-2" size={16} />
+                    <span>Mindfulness sessions</span>
+                  </li>
+                  <li className="flex items-center text-sm">
+                    <Check className="text-green-500 mr-2" size={16} />
+                    <span>Recovery optimization</span>
+                  </li>
+                  <li className="flex items-center text-sm">
+                    <Check className="text-green-500 mr-2" size={16} />
+                    <span>Health trend analysis</span>
+                  </li>
+                  <li className="flex items-center text-sm">
+                    <Check className="text-green-500 mr-2" size={16} />
+                    <span>Wellness coaching</span>
+                  </li>
+                </ul>
+              </motion.div>
+
+              {/* Analytics */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.4 }}
+                className="text-center"
+              >
+                <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <span className="text-white text-2xl">📊</span>
+                </div>
+                <h4 className="text-xl font-semibold text-gray-900 mb-4">Analytics</h4>
+                <ul className="space-y-2 text-left">
+                  <li className="flex items-center text-sm">
+                    <Check className="text-green-500 mr-2" size={16} />
+                    <span>Body composition tracking</span>
+                  </li>
+                  <li className="flex items-center text-sm">
+                    <Check className="text-green-500 mr-2" size={16} />
+                    <span>Detailed progress reports</span>
+                  </li>
+                  <li className="flex items-center text-sm">
+                    <Check className="text-green-500 mr-2" size={16} />
+                    <span>Goal achievement predictions</span>
+                  </li>
+                  <li className="flex items-center text-sm">
+                    <Check className="text-green-500 mr-2" size={16} />
+                    <span>Custom data exports</span>
+                  </li>
+                  <li className="flex items-center text-sm">
+                    <Check className="text-green-500 mr-2" size={16} />
+                    <span>Advanced visualizations</span>
+                  </li>
+                  <li className="flex items-center text-sm">
+                    <Check className="text-green-500 mr-2" size={16} />
+                    <span>Comparative analytics</span>
+                  </li>
+                  <li className="flex items-center text-sm">
+                    <Check className="text-green-500 mr-2" size={16} />
+                    <span>Performance insights</span>
+                  </li>
+                </ul>
+              </motion.div>
+            </div>
+          </div>
+
+          {/* User Testimonials */}
+          <div className="mb-16">
+            <h3 className="text-3xl font-bold text-center text-gray-900 mb-12">What Users Say</h3>
+            <div className="grid md:grid-cols-3 gap-8">
+              {[
+                {
+                  text: "The personalized workout plans helped me lose 25 pounds in 4 months!",
+                  author: "Sarah M.",
+                  location: "New York, USA"
+                },
+                {
+                  text: "The AI food recognition is incredible. It saves me so much time logging meals.",
+                  author: "Mike R.",
+                  location: "London, UK"
+                },
+                {
+                  text: "Best fitness tracker I've ever used! The analytics are amazing.",
+                  author: "Emma L.",
+                  location: "Sydney, Australia"
+                }
+              ].map((testimonial, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  className="bg-white p-6 rounded-2xl shadow-lg"
+                >
+                  <div className="flex items-center mb-4">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="text-yellow-400 fill-current" size={20} />
+                    ))}
+                  </div>
+                  <p className="text-gray-700 mb-4">"{testimonial.text}"</p>
+                  <p className="text-sm text-gray-500 font-semibold">- {testimonial.author}, {testimonial.location}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* Security & Payment */}
+          <div className="grid md:grid-cols-2 gap-8 mb-16">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-center"
+            >
+              <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <span className="text-white text-2xl">🛡️</span>
+              </div>
+              <h4 className="text-xl font-semibold text-gray-900 mb-4">Your Data is Safe</h4>
+              <ul className="space-y-2 text-left">
+                <li className="flex items-center text-sm">
+                  <Check className="text-green-500 mr-2" size={16} />
+                  <span>256-bit SSL encryption</span>
+                </li>
+                <li className="flex items-center text-sm">
+                  <Check className="text-green-500 mr-2" size={16} />
+                  <span>GDPR compliant data handling</span>
+                </li>
+                <li className="flex items-center text-sm">
+                  <Check className="text-green-500 mr-2" size={16} />
+                  <span>Cancel anytime, no questions asked</span>
+                </li>
+                <li className="flex items-center text-sm">
+                  <Check className="text-green-500 mr-2" size={16} />
+                  <span>30-day money-back guarantee</span>
+                </li>
+              </ul>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="text-center"
+            >
+              <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <span className="text-white text-2xl">🔒</span>
+              </div>
+              <h4 className="text-xl font-semibold text-gray-900 mb-4">Secure Payment</h4>
+              <p className="text-gray-600 mb-4">
+                We accept all major payment methods and process payments securely through industry-leading providers.
+              </p>
+              <div className="flex justify-center space-x-4">
+                <span className="text-sm text-gray-500">Credit Cards</span>
+                <span className="text-sm text-gray-500">Bank Transfer</span>
+                <span className="text-sm text-gray-500">Digital Wallets</span>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* FAQ */}
+          <div className="text-center">
+            <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+              <span className="text-white text-2xl">❓</span>
+            </div>
+            <h3 className="text-3xl font-bold text-gray-900 mb-12">Frequently Asked Questions</h3>
+            <div className="max-w-3xl mx-auto space-y-6 text-left">
+              {[
+                {
+                  question: "Can I cancel anytime?",
+                  answer: "Yes! You can cancel your subscription at any time from your account settings. No questions asked."
+                },
+                {
+                  question: "What happens to my data if I cancel?",
+                  answer: "Your data remains safe and accessible. You can export all your data before canceling if you wish."
+                },
+                {
+                  question: "Is there a family plan?",
+                  answer: "Currently, we offer individual plans. Family plans are coming soon in 2024!"
+                },
+                {
+                  question: "Do you offer student discounts?",
+                  answer: "Yes! Students get 50% off all plans. Contact support with your student ID for verification."
+                }
+              ].map((faq, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  className="bg-gray-50 p-6 rounded-2xl"
+                >
+                  <h4 className="text-lg font-semibold text-gray-900 mb-2">{faq.question}</h4>
+                  <p className="text-gray-600">{faq.answer}</p>
+                </motion.div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
