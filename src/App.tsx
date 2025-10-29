@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import { motion, AnimatePresence } from 'framer-motion';
 import Navigation from './components/Navigation';
 import LandingPage from './pages/LandingPage';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
 import Onboarding from './pages/Onboarding';
 import Home from './pages/Home';
 import Fuel from './pages/Fuel';
@@ -37,19 +39,48 @@ function AppNavigation() {
 }
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Check if user is authenticated
+    const user = localStorage.getItem('aifit_user');
     const hasCompletedOnboarding = localStorage.getItem('aifit_onboarding_completed');
-    if (!hasCompletedOnboarding) {
-      setShowOnboarding(true);
+    
+    if (user) {
+      setIsAuthenticated(true);
+      if (!hasCompletedOnboarding) {
+        setShowOnboarding(true);
+      }
     }
+    setIsLoading(false);
   }, []);
 
   const handleOnboardingComplete = () => {
     localStorage.setItem('aifit_onboarding_completed', 'true');
     setShowOnboarding(false);
   };
+
+  const handleLogout = () => {
+    localStorage.removeItem('aifit_user');
+    localStorage.removeItem('aifit_onboarding_completed');
+    setIsAuthenticated(false);
+    setShowOnboarding(false);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <span className="text-white text-2xl">✨</span>
+          </div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (showOnboarding) {
     return (
@@ -76,23 +107,26 @@ function App() {
             >
               <Routes>
                 <Route path="/" element={<LandingPage />} />
-                <Route path="/app" element={<Home />} />
-                <Route path="/fuel" element={<Fuel />} />
-                <Route path="/move" element={<Move />} />
-                <Route path="/wellness" element={<Wellness />} />
-                <Route path="/progress" element={<Progress />} />
-                <Route path="/premium" element={<Premium />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/recipes" element={<Recipes />} />
-                <Route path="/workouts" element={<Workouts />} />
-                <Route path="/friends" element={<Friends />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/notifications" element={<Notifications />} />
-                <Route path="/privacy" element={<Privacy />} />
-                <Route path="/help" element={<Help />} />
-                <Route path="/admin" element={<Admin />} />
-                <Route path="/create-recipe" element={<CreateRecipe />} />
-                <Route path="/my-recipes" element={<MyRecipes />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/onboarding" element={<Onboarding onComplete={handleOnboardingComplete} />} />
+                <Route path="/app" element={isAuthenticated ? <Home /> : <Login />} />
+                <Route path="/fuel" element={isAuthenticated ? <Fuel /> : <Login />} />
+                <Route path="/move" element={isAuthenticated ? <Move /> : <Login />} />
+                <Route path="/wellness" element={isAuthenticated ? <Wellness /> : <Login />} />
+                <Route path="/progress" element={isAuthenticated ? <Progress /> : <Login />} />
+                <Route path="/premium" element={isAuthenticated ? <Premium /> : <Login />} />
+                <Route path="/profile" element={isAuthenticated ? <Profile /> : <Login />} />
+                <Route path="/recipes" element={isAuthenticated ? <Recipes /> : <Login />} />
+                <Route path="/workouts" element={isAuthenticated ? <Workouts /> : <Login />} />
+                <Route path="/friends" element={isAuthenticated ? <Friends /> : <Login />} />
+                <Route path="/settings" element={isAuthenticated ? <Settings /> : <Login />} />
+                <Route path="/notifications" element={isAuthenticated ? <Notifications /> : <Login />} />
+                <Route path="/privacy" element={isAuthenticated ? <Privacy /> : <Login />} />
+                <Route path="/help" element={isAuthenticated ? <Help /> : <Login />} />
+                <Route path="/admin" element={isAuthenticated ? <Admin /> : <Login />} />
+                <Route path="/create-recipe" element={isAuthenticated ? <CreateRecipe /> : <Login />} />
+                <Route path="/my-recipes" element={isAuthenticated ? <MyRecipes /> : <Login />} />
               </Routes>
             </motion.div>
           </AnimatePresence>
