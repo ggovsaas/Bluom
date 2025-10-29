@@ -21,7 +21,7 @@ const Header: React.FC = () => {
     <header className="bg-white border-b border-gray-200 px-4 py-3">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         {/* Logo */}
-        <Link to="/" className="flex items-center space-x-2">
+        <Link to="/app" className="flex items-center space-x-2">
           <div className="w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-600 rounded-lg flex items-center justify-center">
             <span className="text-white text-sm font-bold">✨</span>
           </div>

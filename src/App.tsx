@@ -31,8 +31,11 @@ import './App.css';
 function AppNavigation() {
   const location = useLocation();
   const isLandingPage = location.pathname === '/';
+  const isOnboardingPage = location.pathname === '/onboarding';
+  const isSignupPage = location.pathname === '/signup';
+  const isLoginPage = location.pathname === '/login';
   
-  if (isLandingPage) {
+  if (isLandingPage || isOnboardingPage || isSignupPage || isLoginPage) {
     return null;
   }
   
@@ -43,8 +46,11 @@ function AppNavigation() {
 function AppHeader() {
   const location = useLocation();
   const isLandingPage = location.pathname === '/';
+  const isOnboardingPage = location.pathname === '/onboarding';
+  const isSignupPage = location.pathname === '/signup';
+  const isLoginPage = location.pathname === '/login';
   
-  if (isLandingPage) {
+  if (isLandingPage || isOnboardingPage || isSignupPage || isLoginPage) {
     return null;
   }
   
@@ -61,13 +67,13 @@ function App() {
     const user = localStorage.getItem('aifit_user');
     const hasSignedUp = localStorage.getItem('aifit_signed_up');
     
-    if (user && hasSignedUp) {
-      // User is fully set up - no onboarding needed
+    if (user) {
+      // User is logged in
       setIsAuthenticated(true);
-    } else if (user && !hasSignedUp) {
-      // User logged in but needs to complete onboarding and signup
-      setIsAuthenticated(true);
-      setShowOnboarding(true);
+      if (!hasSignedUp) {
+        // User logged in but needs to complete onboarding and signup
+        setShowOnboarding(true);
+      }
     }
     setIsLoading(false);
   }, []);
