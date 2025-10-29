@@ -15,9 +15,29 @@ export default function Login() {
     setError('');
 
     try {
-      // Simple mock authentication for now
       if (email && password) {
-        localStorage.setItem('aifit_user', JSON.stringify({ email, name: email.split('@')[0] }));
+        // Check if account exists
+        const existingAccounts = JSON.parse(localStorage.getItem('aifit_accounts') || '[]');
+        const account = existingAccounts.find((acc: any) => acc.email === email);
+        
+        if (!account) {
+          setError('No account found with this email. Please signup first.');
+          setIsLoading(false);
+          return;
+        }
+        
+        if (account.password && account.password !== password) {
+          setError('Incorrect password. Please try again.');
+          setIsLoading(false);
+          return;
+        }
+        
+        // Set current user
+        localStorage.setItem('aifit_user', JSON.stringify({ 
+          email: account.email, 
+          name: account.name,
+          id: account.id
+        }));
         
         // Check if user has already signed up
         const hasSignedUp = localStorage.getItem('aifit_signed_up');
@@ -45,10 +65,20 @@ export default function Login() {
 
   const handleGoogleLogin = () => {
     // Mock Google login
+    const googleEmail = 'user@gmail.com';
+    const existingAccounts = JSON.parse(localStorage.getItem('aifit_accounts') || '[]');
+    const account = existingAccounts.find((acc: any) => acc.email === googleEmail);
+    
+    if (!account) {
+      setError('No Google account found. Please signup first.');
+      return;
+    }
+    
     localStorage.setItem('aifit_user', JSON.stringify({ 
-      email: 'user@gmail.com', 
-      name: 'Google User',
-      provider: 'google'
+      email: account.email, 
+      name: account.name,
+      provider: 'google',
+      id: account.id
     }));
     
     // Check if user has already signed up

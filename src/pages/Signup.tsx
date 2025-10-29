@@ -32,12 +32,37 @@ export default function Signup() {
     }
 
     try {
-      // Simple mock signup for now
+      // Check if account already exists
+      const existingAccounts = JSON.parse(localStorage.getItem('aifit_accounts') || '[]');
+      const accountExists = existingAccounts.find((account: any) => account.email === formData.email);
+      
+      if (accountExists) {
+        setError('An account with this email already exists. Please login instead.');
+        setIsLoading(false);
+        return;
+      }
+
+      // Create new account
+      const newAccount = {
+        email: formData.email,
+        name: formData.name,
+        password: formData.password, // In real app, this would be hashed
+        createdAt: new Date().toISOString(),
+        id: Date.now().toString()
+      };
+
+      // Save account to accounts list
+      existingAccounts.push(newAccount);
+      localStorage.setItem('aifit_accounts', JSON.stringify(existingAccounts));
+
+      // Set current user
       localStorage.setItem('aifit_user', JSON.stringify({ 
         email: formData.email, 
-        name: formData.name 
+        name: formData.name,
+        id: newAccount.id
       }));
       localStorage.setItem('aifit_signed_up', 'true');
+      
       // User stays logged in forever after signup
       navigate('/app');
     } catch (err) {
@@ -49,10 +74,29 @@ export default function Signup() {
 
   const handleGoogleSignup = () => {
     // Mock Google signup
+    const googleEmail = 'user@gmail.com';
+    const existingAccounts = JSON.parse(localStorage.getItem('aifit_accounts') || '[]');
+    const accountExists = existingAccounts.find((account: any) => account.email === googleEmail);
+    
+    if (!accountExists) {
+      // Create new Google account
+      const newAccount = {
+        email: googleEmail,
+        name: 'Google User',
+        provider: 'google',
+        createdAt: new Date().toISOString(),
+        id: Date.now().toString()
+      };
+      
+      existingAccounts.push(newAccount);
+      localStorage.setItem('aifit_accounts', JSON.stringify(existingAccounts));
+    }
+    
     localStorage.setItem('aifit_user', JSON.stringify({ 
-      email: 'user@gmail.com', 
+      email: googleEmail, 
       name: 'Google User',
-      provider: 'google'
+      provider: 'google',
+      id: existingAccounts.find((account: any) => account.email === googleEmail)?.id
     }));
     localStorage.setItem('aifit_signed_up', 'true');
     // User stays logged in forever after signup

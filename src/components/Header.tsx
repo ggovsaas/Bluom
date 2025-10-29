@@ -19,6 +19,7 @@ const Header: React.FC = () => {
     localStorage.removeItem('aifit_food_entries');
     localStorage.removeItem('aifit_exercise_entries');
     localStorage.removeItem('aifit_last_active_date');
+    // Note: We keep aifit_accounts so users can login again
     navigate('/');
   };
 
