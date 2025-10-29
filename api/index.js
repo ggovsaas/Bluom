@@ -124,6 +124,93 @@ module.exports = async (req, res) => {
       return res.json({ status: 'OK', message: 'AiFit API is running' });
     }
 
+    // User registration
+    if (path === '/api/auth/register' && method === 'POST') {
+      const { email, name, password } = req.body;
+      
+      if (!email || !name || !password) {
+        return res.status(400).json({ error: 'Email, name, and password are required' });
+      }
+
+      try {
+        // Check if user already exists
+        const existingUser = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
+        
+        if (existingUser.rows.length > 0) {
+          return res.status(409).json({ error: 'An account with this email already exists' });
+        }
+
+        // Create new user
+        const result = await pool.query(
+          'INSERT INTO users (email, name) VALUES ($1, $2) RETURNING id, email, name, created_at',
+          [email, name]
+        );
+
+        return res.json({
+          success: true,
+          message: 'Account created successfully',
+          user: result.rows[0]
+        });
+      } catch (error) {
+        console.error('Registration error:', error);
+        return res.status(500).json({ error: 'Registration failed' });
+      }
+    }
+
+    // User login
+    if (path === '/api/auth/login' && method === 'POST') {
+      const { email, password } = req.body;
+      
+      if (!email || !password) {
+        return res.status(400).json({ error: 'Email and password are required' });
+      }
+
+      try {
+        // Find user by email
+        const result = await pool.query('SELECT id, email, name, created_at FROM users WHERE email = $1', [email]);
+        
+        if (result.rows.length === 0) {
+          return res.status(401).json({ error: 'No account found with this email' });
+        }
+
+        const user = result.rows[0];
+        
+        return res.json({
+          success: true,
+          message: 'Login successful',
+          user: user
+        });
+      } catch (error) {
+        console.error('Login error:', error);
+        return res.status(500).json({ error: 'Login failed' });
+      }
+    }
+
+    // Get user profile
+    if (path === '/api/auth/profile' && method === 'GET') {
+      const { userId } = req.query;
+      
+      if (!userId) {
+        return res.status(400).json({ error: 'User ID is required' });
+      }
+
+      try {
+        const result = await pool.query('SELECT id, email, name, age, weight, height, activity_level, goals, created_at FROM users WHERE id = $1', [userId]);
+        
+        if (result.rows.length === 0) {
+          return res.status(404).json({ error: 'User not found' });
+        }
+
+        return res.json({
+          success: true,
+          user: result.rows[0]
+        });
+      } catch (error) {
+        console.error('Profile error:', error);
+        return res.status(500).json({ error: 'Failed to fetch profile' });
+      }
+    }
+
     // Food search
     if (path === '/api/foods/search' && method === 'GET') {
       const { q } = req.query;

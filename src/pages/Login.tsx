@@ -16,43 +16,32 @@ export default function Login() {
 
     try {
       if (email && password) {
-        // Check if account exists
-        const existingAccounts = JSON.parse(localStorage.getItem('aifit_accounts') || '[]');
-        const account = existingAccounts.find((acc: any) => acc.email === email);
-        
-        if (!account) {
-          setError('No account found with this email. Please signup first.');
+        // Login with API
+        const response = await fetch('https://aifitnessapp.vercel.app/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: email,
+            password: password
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          setError(data.error || 'Login failed. Please try again.');
           setIsLoading(false);
           return;
         }
-        
-        if (account.password && account.password !== password) {
-          setError('Incorrect password. Please try again.');
-          setIsLoading(false);
-          return;
-        }
-        
+
         // Set current user
-        localStorage.setItem('aifit_user', JSON.stringify({ 
-          email: account.email, 
-          name: account.name,
-          id: account.id
-        }));
+        localStorage.setItem('aifit_user', JSON.stringify(data.user));
+        localStorage.setItem('aifit_signed_up', 'true');
         
-        // Check if user has already signed up
-        const hasSignedUp = localStorage.getItem('aifit_signed_up');
-        const hasCompletedOnboarding = localStorage.getItem('aifit_onboarding_completed');
-        
-        if (hasSignedUp) {
-          // Returning user - go straight to app
-          navigate('/app');
-        } else if (hasCompletedOnboarding) {
-          // Completed onboarding but not signed up - go to signup
-          navigate('/signup');
-        } else {
-          // New user - go to onboarding
-          navigate('/onboarding');
-        }
+        // If account exists, user is already signed up - go straight to app
+        navigate('/app');
       } else {
         setError('Please enter email and password');
       }
@@ -81,20 +70,9 @@ export default function Login() {
       id: account.id
     }));
     
-    // Check if user has already signed up
-    const hasSignedUp = localStorage.getItem('aifit_signed_up');
-    const hasCompletedOnboarding = localStorage.getItem('aifit_onboarding_completed');
-    
-    if (hasSignedUp) {
-      // Returning user - go straight to app
-      navigate('/app');
-    } else if (hasCompletedOnboarding) {
-      // Completed onboarding but not signed up - go to signup
-      navigate('/signup');
-    } else {
-      // New user - go to onboarding
-      navigate('/onboarding');
-    }
+    // If account exists, user is already signed up - go straight to app
+    localStorage.setItem('aifit_signed_up', 'true');
+    navigate('/app');
   };
 
   return (

@@ -32,35 +32,29 @@ export default function Signup() {
     }
 
     try {
-      // Check if account already exists
-      const existingAccounts = JSON.parse(localStorage.getItem('aifit_accounts') || '[]');
-      const accountExists = existingAccounts.find((account: any) => account.email === formData.email);
-      
-      if (accountExists) {
-        setError('An account with this email already exists. Please login instead.');
+      // Register with API
+      const response = await fetch('https://aifitnessapp.vercel.app/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          name: formData.name,
+          password: formData.password
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || 'Signup failed. Please try again.');
         setIsLoading(false);
         return;
       }
 
-      // Create new account
-      const newAccount = {
-        email: formData.email,
-        name: formData.name,
-        password: formData.password, // In real app, this would be hashed
-        createdAt: new Date().toISOString(),
-        id: Date.now().toString()
-      };
-
-      // Save account to accounts list
-      existingAccounts.push(newAccount);
-      localStorage.setItem('aifit_accounts', JSON.stringify(existingAccounts));
-
       // Set current user
-      localStorage.setItem('aifit_user', JSON.stringify({ 
-        email: formData.email, 
-        name: formData.name,
-        id: newAccount.id
-      }));
+      localStorage.setItem('aifit_user', JSON.stringify(data.user));
       localStorage.setItem('aifit_signed_up', 'true');
       
       // User stays logged in forever after signup
