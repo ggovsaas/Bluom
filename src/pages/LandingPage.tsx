@@ -30,8 +30,14 @@ export default function LandingPage() {
     setPricing(getPricingForCurrency(detectedCurrency));
   }, []);
 
+  console.log('LandingPage component is rendering!', { userCurrency, pricing });
+
   return (
     <div className="min-h-screen bg-white">
+      {/* Debug test */}
+      <div style={{background: 'red', color: 'white', padding: '20px', textAlign: 'center'}}>
+        LANDING PAGE IS LOADING - If you see this, the component is working!
+      </div>
       {/* Header */}
       <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

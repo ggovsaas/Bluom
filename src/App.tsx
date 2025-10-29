@@ -35,6 +35,8 @@ function AppNavigation() {
   const isSignupPage = location.pathname === '/signup';
   const isLoginPage = location.pathname === '/login';
   
+  console.log('AppNavigation - Current path:', location.pathname, 'isLandingPage:', isLandingPage);
+  
   if (isLandingPage || isOnboardingPage || isSignupPage || isLoginPage) {
     return null;
   }
