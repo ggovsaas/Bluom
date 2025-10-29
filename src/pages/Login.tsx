@@ -21,14 +21,10 @@ export default function Login() {
         
         // Check if user has already signed up
         const hasSignedUp = localStorage.getItem('aifit_signed_up');
-        const hasCompletedOnboarding = localStorage.getItem('aifit_onboarding_completed');
         
         if (hasSignedUp) {
           // Returning user - go straight to app
           navigate('/app');
-        } else if (hasCompletedOnboarding) {
-          // Completed onboarding but not signed up - go to signup
-          navigate('/signup');
         } else {
           // New user - go to onboarding
           navigate('/onboarding');
@@ -53,14 +49,10 @@ export default function Login() {
     
     // Check if user has already signed up
     const hasSignedUp = localStorage.getItem('aifit_signed_up');
-    const hasCompletedOnboarding = localStorage.getItem('aifit_onboarding_completed');
     
     if (hasSignedUp) {
       // Returning user - go straight to app
       navigate('/app');
-    } else if (hasCompletedOnboarding) {
-      // Completed onboarding but not signed up - go to signup
-      navigate('/signup');
     } else {
       // New user - go to onboarding
       navigate('/onboarding');

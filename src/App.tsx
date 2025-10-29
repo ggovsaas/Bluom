@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navigation from './components/Navigation';
+import Header from './components/Header';
 import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
@@ -38,6 +39,18 @@ function AppNavigation() {
   return <Navigation />;
 }
 
+// Header component that shows on all pages except landing
+function AppHeader() {
+  const location = useLocation();
+  const isLandingPage = location.pathname === '/';
+  
+  if (isLandingPage) {
+    return null;
+  }
+  
+  return <Header />;
+}
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -46,18 +59,15 @@ function App() {
   useEffect(() => {
     // Check if user is authenticated - stay logged in forever once logged in
     const user = localStorage.getItem('aifit_user');
-    const hasCompletedOnboarding = localStorage.getItem('aifit_onboarding_completed');
     const hasSignedUp = localStorage.getItem('aifit_signed_up');
     
     if (user && hasSignedUp) {
       // User is fully set up - no onboarding needed
       setIsAuthenticated(true);
     } else if (user && !hasSignedUp) {
-      // User logged in but needs to signup after onboarding
+      // User logged in but needs to complete onboarding and signup
       setIsAuthenticated(true);
-      if (!hasCompletedOnboarding) {
-        setShowOnboarding(true);
-      }
+      setShowOnboarding(true);
     }
     setIsLoading(false);
   }, []);
@@ -98,18 +108,19 @@ function App() {
   }
 
   return (
-    <UserProvider>
-      <Router>
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key="app-content"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="pb-20"
-            >
+        <UserProvider>
+          <Router>
+            <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+              <AppHeader />
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key="app-content"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="pb-20"
+                >
               <Routes>
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/login" element={<Login />} />

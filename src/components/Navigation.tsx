@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 
 const Navigation: React.FC = () => {
   const navItems = [
-    { path: '/', icon: Home, label: 'Home' },
+    { path: '/app', icon: Home, label: 'Home' },
     { path: '/fuel', icon: Utensils, label: 'Fuel' },
     { path: '/move', icon: Dumbbell, label: 'Move' },
     { path: '/wellness', icon: Heart, label: 'Wellness' },

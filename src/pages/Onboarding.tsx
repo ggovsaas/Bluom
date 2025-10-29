@@ -18,6 +18,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
   });
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [infoContent, setInfoContent] = useState({ title: '', description: '' });
+  const [showWelcome, setShowWelcome] = useState(true);
   const { updateProfile } = useUser();
 
   // Nutrition approach information
@@ -537,6 +538,70 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
       </div>
     );
   };
+
+  // Welcome slider
+  if (showWelcome) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-br from-blue-50 to-indigo-100">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center max-w-2xl mx-auto"
+        >
+          {/* Logo */}
+          <div className="mb-8">
+            <div className="w-20 h-20 bg-gradient-to-r from-pink-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+              <span className="text-white text-3xl">✨</span>
+            </div>
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+              Welcome to AiFit!
+            </h1>
+            <p className="text-xl text-gray-600 mb-8">
+              Let's personalize your fitness journey with a few quick questions
+            </p>
+          </div>
+
+          {/* Features preview */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+              <div className="text-4xl mb-4">📷</div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">AI Food Recognition</h3>
+              <p className="text-gray-600 text-sm">Snap photos of your meals for instant nutrition tracking</p>
+            </div>
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+              <div className="text-4xl mb-4">🏋️</div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Smart Workouts</h3>
+              <p className="text-gray-600 text-sm">Track exercises and get personalized recommendations</p>
+            </div>
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+              <div className="text-4xl mb-4">📊</div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Progress Insights</h3>
+              <p className="text-gray-600 text-sm">Monitor your health and fitness journey with data</p>
+            </div>
+          </div>
+
+          {/* Get Started Button */}
+          <motion.button
+            onClick={() => setShowWelcome(false)}
+            className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-8 py-4 rounded-full font-semibold text-lg hover:from-pink-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            Get Started →
+          </motion.button>
+
+          {/* Skip option */}
+          <button
+            onClick={skipOnboarding}
+            className="mt-4 text-gray-500 hover:text-gray-700 transition-colors"
+          >
+            Skip for now
+          </button>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 relative">
