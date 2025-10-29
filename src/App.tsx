@@ -30,7 +30,7 @@ import './App.css';
 // Navigation component that only shows on app pages
 function AppNavigation() {
   const location = useLocation();
-  const isLandingPage = location.pathname === '/';
+  const isLandingPage = location.pathname === '/landingpage';
   const isOnboardingPage = location.pathname === '/onboarding';
   const isSignupPage = location.pathname === '/signup';
   const isLoginPage = location.pathname === '/login';
@@ -45,7 +45,7 @@ function AppNavigation() {
 // Header component that shows on all pages except landing
 function AppHeader() {
   const location = useLocation();
-  const isLandingPage = location.pathname === '/';
+  const isLandingPage = location.pathname === '/landingpage';
   const isOnboardingPage = location.pathname === '/onboarding';
   const isSignupPage = location.pathname === '/signup';
   const isLoginPage = location.pathname === '/login';
@@ -117,7 +117,7 @@ function App() {
   return (
         <UserProvider>
           <Router>
-            <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+            <div className="min-h-screen">
               <AppHeader />
               <AnimatePresence mode="wait">
                 <motion.div
@@ -129,7 +129,8 @@ function App() {
                   className="pb-20"
                 >
               <Routes>
-                <Route path="/" element={<LandingPage />} />
+                <Route path="/" element={isAuthenticated ? <Home /> : <Login />} />
+                <Route path="/landingpage" element={<LandingPage />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/onboarding" element={<Onboarding onComplete={handleOnboardingComplete} />} />
