@@ -35,8 +35,6 @@ function AppNavigation() {
   const isSignupPage = location.pathname === '/signup';
   const isLoginPage = location.pathname === '/login';
   
-  console.log('AppNavigation - Current path:', location.pathname, 'isLandingPage:', isLandingPage);
-  
   if (isLandingPage || isOnboardingPage || isSignupPage || isLoginPage) {
     return null;
   }
@@ -119,24 +117,26 @@ function App() {
   return (
         <UserProvider>
           <Router>
-            <div className="min-h-screen">
-              <AppHeader />
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key="app-content"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="pb-20"
-                >
-              <Routes>
-                <Route path="/" element={isAuthenticated ? <Home /> : <Login />} />
-                <Route path="/landingpage" element={<LandingPage />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/onboarding" element={<Onboarding onComplete={handleOnboardingComplete} />} />
-                <Route path="/app" element={isAuthenticated ? <Home /> : <Login />} />
+            <Routes>
+              <Route path="/landingpage" element={<LandingPage />} />
+              <Route path="/*" element={
+                <div className="min-h-screen">
+                  <AppHeader />
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key="app-content"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="pb-20"
+                    >
+                      <Routes>
+                        <Route path="/" element={isAuthenticated ? <Home /> : <Login />} />
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/signup" element={<Signup />} />
+                        <Route path="/onboarding" element={<Onboarding onComplete={handleOnboardingComplete} />} />
+                        <Route path="/app" element={isAuthenticated ? <Home /> : <Login />} />
                 <Route path="/fuel" element={isAuthenticated ? <Fuel /> : <Login />} />
                 <Route path="/move" element={isAuthenticated ? <Move /> : <Login />} />
                 <Route path="/wellness" element={isAuthenticated ? <Wellness /> : <Login />} />
@@ -153,13 +153,15 @@ function App() {
                 <Route path="/admin" element={isAuthenticated ? <Admin /> : <Login />} />
                 <Route path="/create-recipe" element={isAuthenticated ? <CreateRecipe /> : <Login />} />
                 <Route path="/my-recipes" element={isAuthenticated ? <MyRecipes /> : <Login />} />
-              </Routes>
-            </motion.div>
-          </AnimatePresence>
-          <AppNavigation />
-        </div>
-      </Router>
-    </UserProvider>
+                      </Routes>
+                    </motion.div>
+                  </AnimatePresence>
+                  <AppNavigation />
+                </div>
+              } />
+            </Routes>
+          </Router>
+        </UserProvider>
   );
 }
 
