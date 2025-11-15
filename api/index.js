@@ -82,6 +82,63 @@ async function initializeDatabase() {
       )
     `);
 
+    // Create gratitude_logs table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS gratitude_logs (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id),
+        entry TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Create journal_entries table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS journal_entries (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id),
+        content TEXT NOT NULL,
+        mood_tag VARCHAR(50),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Create meditation_sessions table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS meditation_sessions (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id),
+        title VARCHAR(255),
+        duration INTEGER,
+        completed BOOLEAN DEFAULT false,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Create meditation_library table (for admin-uploaded meditations)
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS meditation_library (
+        id SERIAL PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        category VARCHAR(50),
+        duration INTEGER,
+        description TEXT,
+        audio_url TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Create indexes for better query performance
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_gratitude_user_date ON gratitude_logs(user_id, created_at DESC)
+    `);
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_journal_user_date ON journal_entries(user_id, created_at DESC)
+    `);
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_meditation_user_date ON meditation_sessions(user_id, created_at DESC)
+    `);
+
     console.log('Database tables initialized successfully');
   } catch (error) {
     console.error('Error initializing database:', error);
@@ -121,7 +178,7 @@ module.exports = async (req, res) => {
   try {
     // Health check
     if (path === '/api/health') {
-      return res.json({ status: 'OK', message: 'AiFit API is running' });
+      return res.json({ status: 'OK', message: 'BloomYou API is running' });
     }
 
     // User registration
@@ -444,6 +501,342 @@ module.exports = async (req, res) => {
       ];
 
       return res.json(mockWorkouts);
+    }
+
+    // ==================== AIMind API Endpoints ====================
+
+    // Post gratitude entry
+    if (path === '/api/aimind/gratitude' && method === 'POST') {
+      const { userId = 1, entry } = req.body;
+      
+      if (!entry || !entry.trim()) {
+        return res.status(400).json({ error: 'Gratitude entry is required' });
+      }
+
+      try {
+        const result = await pool.query(
+          'INSERT INTO gratitude_logs (user_id, entry) VALUES ($1, $2) RETURNING *',
+          [userId, entry.trim()]
+        );
+
+        return res.json({
+          success: true,
+          message: 'Gratitude entry saved successfully',
+          data: result.rows[0]
+        });
+      } catch (error) {
+        console.error('Gratitude save error:', error);
+        return res.status(500).json({ error: 'Failed to save gratitude entry' });
+      }
+    }
+
+    // Get gratitude entries
+    if (path === '/api/aimind/gratitude' && method === 'GET') {
+      const { userId = 1, limit = 10 } = req.query;
+
+      try {
+        const result = await pool.query(
+          'SELECT * FROM gratitude_logs WHERE user_id = $1 ORDER BY created_at DESC LIMIT $2',
+          [userId, parseInt(limit)]
+        );
+
+        return res.json({
+          success: true,
+          entries: result.rows
+        });
+      } catch (error) {
+        console.error('Gratitude fetch error:', error);
+        return res.status(500).json({ error: 'Failed to fetch gratitude entries' });
+      }
+    }
+
+    // Post journal entry
+    if (path === '/api/aimind/journal' && method === 'POST') {
+      const { userId = 1, content, moodTag } = req.body;
+      
+      if (!content || !content.trim()) {
+        return res.status(400).json({ error: 'Journal content is required' });
+      }
+
+      try {
+        const result = await pool.query(
+          'INSERT INTO journal_entries (user_id, content, mood_tag) VALUES ($1, $2, $3) RETURNING *',
+          [userId, content.trim(), moodTag || null]
+        );
+
+        return res.json({
+          success: true,
+          message: 'Journal entry saved successfully',
+          data: result.rows[0]
+        });
+      } catch (error) {
+        console.error('Journal save error:', error);
+        return res.status(500).json({ error: 'Failed to save journal entry' });
+      }
+    }
+
+    // Get journal entries
+    if (path === '/api/aimind/journal' && method === 'GET') {
+      const { userId = 1, limit = 5 } = req.query;
+
+      try {
+        const result = await pool.query(
+          'SELECT * FROM journal_entries WHERE user_id = $1 ORDER BY created_at DESC LIMIT $2',
+          [userId, parseInt(limit)]
+        );
+
+        return res.json({
+          success: true,
+          entries: result.rows
+        });
+      } catch (error) {
+        console.error('Journal fetch error:', error);
+        return res.status(500).json({ error: 'Failed to fetch journal entries' });
+      }
+    }
+
+    // Start meditation session
+    if (path === '/api/aimind/meditation/start' && method === 'POST') {
+      const { userId = 1, title, duration } = req.body;
+
+      try {
+        const result = await pool.query(
+          'INSERT INTO meditation_sessions (user_id, title, duration, completed) VALUES ($1, $2, $3, false) RETURNING *',
+          [userId, title || 'Meditation Session', duration || 10]
+        );
+
+        return res.json({
+          success: true,
+          message: 'Meditation session started',
+          session: result.rows[0]
+        });
+      } catch (error) {
+        console.error('Meditation start error:', error);
+        return res.status(500).json({ error: 'Failed to start meditation session' });
+      }
+    }
+
+    // Complete meditation session
+    if (path === '/api/aimind/meditation/complete' && method === 'POST') {
+      const { sessionId, userId = 1 } = req.body;
+
+      if (!sessionId) {
+        return res.status(400).json({ error: 'Session ID is required' });
+      }
+
+      try {
+        const result = await pool.query(
+          'UPDATE meditation_sessions SET completed = true WHERE id = $1 AND user_id = $2 RETURNING *',
+          [sessionId, userId]
+        );
+
+        if (result.rows.length === 0) {
+          return res.status(404).json({ error: 'Session not found' });
+        }
+
+        return res.json({
+          success: true,
+          message: 'Meditation session completed',
+          session: result.rows[0]
+        });
+      } catch (error) {
+        console.error('Meditation complete error:', error);
+        return res.status(500).json({ error: 'Failed to complete meditation session' });
+      }
+    }
+
+    // Get meditation sessions
+    if (path === '/api/aimind/meditation' && method === 'GET') {
+      const { userId = 1, limit = 10 } = req.query;
+
+      try {
+        const result = await pool.query(
+          'SELECT * FROM meditation_sessions WHERE user_id = $1 ORDER BY created_at DESC LIMIT $2',
+          [userId, parseInt(limit)]
+        );
+
+        return res.json({
+          success: true,
+          sessions: result.rows
+        });
+      } catch (error) {
+        console.error('Meditation fetch error:', error);
+        return res.status(500).json({ error: 'Failed to fetch meditation sessions' });
+      }
+    }
+
+    // Get AIMind insights (correlations between sleep, mood, habits)
+    if (path === '/api/aimind/insights' && method === 'GET') {
+      const { userId = 1 } = req.query;
+
+      try {
+        // Get user's data from last 7 days
+        const [dailyDataResult, meditationResult, gratitudeResult, journalResult] = await Promise.all([
+          pool.query(
+            `SELECT * FROM daily_data 
+             WHERE user_id = $1 AND date >= CURRENT_DATE - INTERVAL '7 days'
+             ORDER BY date DESC`,
+            [userId]
+          ),
+          pool.query(
+            `SELECT COUNT(*) as count FROM meditation_sessions 
+             WHERE user_id = $1 AND completed = true 
+             AND created_at >= CURRENT_DATE - INTERVAL '7 days'`,
+            [userId]
+          ),
+          pool.query(
+            `SELECT COUNT(*) as count FROM gratitude_logs 
+             WHERE user_id = $1 
+             AND created_at >= CURRENT_DATE - INTERVAL '7 days'`,
+            [userId]
+          ),
+          pool.query(
+            `SELECT COUNT(*) as count FROM journal_entries 
+             WHERE user_id = $1 
+             AND created_at >= CURRENT_DATE - INTERVAL '7 days'`,
+            [userId]
+          )
+        ]);
+
+        const dailyData = dailyDataResult.rows;
+        const meditationCount = parseInt(meditationResult.rows[0]?.count || 0);
+        const gratitudeCount = parseInt(gratitudeResult.rows[0]?.count || 0);
+        const journalCount = parseInt(journalResult.rows[0]?.count || 0);
+
+        // Calculate insights
+        const totalDays = dailyData.length || 1;
+        const avgSleep = dailyData.length > 0
+          ? dailyData.reduce((sum, day) => sum + parseFloat(day.sleep_hours || 0), 0) / dailyData.length
+          : 0;
+        
+        const goodMoodDays = dailyData.filter(day => 
+          ['excellent', 'good'].includes(day.mood)
+        ).length;
+        
+        const moodStability = totalDays > 0 ? (goodMoodDays / totalDays) * 100 : 0;
+
+        // Calculate calmness score (based on meditation, gratitude, journal, and mood stability)
+        const calmnessScore = Math.min(100, 
+          Math.round(
+            (meditationCount * 10) + 
+            (gratitudeCount * 5) + 
+            (journalCount * 5) + 
+            (moodStability * 0.5) +
+            (avgSleep >= 7 ? 20 : avgSleep >= 6 ? 10 : 0)
+          )
+        );
+
+        // Generate insights
+        const insights = {
+          calmnessScore,
+          avgSleep: avgSleep.toFixed(1),
+          moodStability: moodStability.toFixed(1),
+          meditationCount,
+          gratitudeCount,
+          journalCount,
+          totalDays,
+          recommendations: []
+        };
+
+        // Add recommendations based on data
+        if (avgSleep < 7) {
+          insights.recommendations.push({
+            type: 'sleep',
+            message: `Your average sleep is ${avgSleep.toFixed(1)} hours. Aim for 7-9 hours for optimal wellness.`,
+            action: 'Try a 10-minute meditation before bed'
+          });
+        }
+
+        if (moodStability < 50) {
+          insights.recommendations.push({
+            type: 'mood',
+            message: 'Your mood has been fluctuating. Regular gratitude practice can help stabilize your mood.',
+            action: 'Log 3 things you're grateful for today'
+          });
+        }
+
+        if (meditationCount === 0) {
+          insights.recommendations.push({
+            type: 'meditation',
+            message: 'You haven\'t meditated this week. Even 5 minutes can make a difference.',
+            action: 'Start a 10-minute meditation session'
+          });
+        }
+
+        if (insights.recommendations.length === 0) {
+          insights.recommendations.push({
+            type: 'positive',
+            message: 'Great job! You\'re maintaining consistent wellness habits.',
+            action: 'Keep up the excellent work!'
+          });
+        }
+
+        return res.json({
+          success: true,
+          insights
+        });
+      } catch (error) {
+        console.error('Insights fetch error:', error);
+        return res.status(500).json({ error: 'Failed to fetch insights' });
+      }
+    }
+
+    // Meditation Library endpoints
+    // Get all meditations from library
+    if (path === '/api/aimind/meditation/library' && method === 'GET') {
+      const { category } = req.query;
+      
+      try {
+        let query = 'SELECT * FROM meditation_library';
+        let params = [];
+        
+        if (category) {
+          query += ' WHERE category = $1';
+          params.push(category);
+        }
+        
+        query += ' ORDER BY created_at DESC';
+        
+        const result = await pool.query(query, params);
+        
+        return res.json({
+          success: true,
+          meditations: result.rows
+        });
+      } catch (error) {
+        console.error('Meditation library fetch error:', error);
+        return res.status(500).json({ error: 'Failed to fetch meditation library' });
+      }
+    }
+
+    // Admin: Add meditation to library
+    if (path === '/api/admin/meditation' && method === 'POST') {
+      const { username, password } = req.headers;
+      if (username !== 'admin' || password !== 'admin123') {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+
+      const { title, category, duration, description, audioUrl } = req.body;
+      
+      if (!title || !category || !duration || !audioUrl) {
+        return res.status(400).json({ error: 'Title, category, duration, and audioUrl are required' });
+      }
+
+      try {
+        const result = await pool.query(
+          'INSERT INTO meditation_library (title, category, duration, description, audio_url) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+          [title, category, duration, description || null, audioUrl]
+        );
+
+        return res.json({
+          success: true,
+          message: 'Meditation added to library',
+          meditation: result.rows[0]
+        });
+      } catch (error) {
+        console.error('Meditation library add error:', error);
+        return res.status(500).json({ error: 'Failed to add meditation to library' });
+      }
     }
 
     // 404 for unmatched routes

@@ -56,14 +56,17 @@ interface Workout {
 }
 
 const Admin: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'recipes' | 'workouts' | 'analytics'>('recipes');
+  const [activeTab, setActiveTab] = useState<'recipes' | 'workouts' | 'meditations' | 'analytics'>('recipes');
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [workouts, setWorkouts] = useState<Workout[]>([]);
+  const [meditations, setMeditations] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [showRecipeModal, setShowRecipeModal] = useState(false);
   const [showWorkoutModal, setShowWorkoutModal] = useState(false);
+  const [showMeditationModal, setShowMeditationModal] = useState(false);
   const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
   const [editingWorkout, setEditingWorkout] = useState<Workout | null>(null);
+  const [editingMeditation, setEditingMeditation] = useState<any | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [credentials, setCredentials] = useState({ username: '', password: '' });
 
@@ -71,6 +74,16 @@ const Admin: React.FC = () => {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
   const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
+  const [uploadingAudio, setUploadingAudio] = useState(false);
+
+  // Meditation form state
+  const [meditationForm, setMeditationForm] = useState({
+    title: '',
+    category: 'sleep',
+    duration: 10,
+    description: '',
+    audioUrl: ''
+  });
 
   // Recipe form state
   const [recipeForm, setRecipeForm] = useState({
@@ -177,6 +190,29 @@ const Admin: React.FC = () => {
     }
   };
 
+  const handleAudioUpload = async (file: File) => {
+    setUploadingAudio(true);
+    try {
+      // For now, create a local URL - in production, upload to cloud storage (S3, Cloudinary, etc.)
+      // For Vercel, you'd need to use a service like Cloudinary or AWS S3
+      const audioUrl = URL.createObjectURL(file);
+      
+      // In production, upload to cloud storage and get the URL
+      // const formData = new FormData();
+      // formData.append('audio', file);
+      // const response = await axios.post(`${API_BASE_URL}/api/admin/upload/audio`, formData, {...});
+      // audioUrl = response.data.file.url;
+      
+      setMeditationForm({ ...meditationForm, audioUrl });
+      alert('Audio selected. Note: For production, integrate with cloud storage (AWS S3, Cloudinary, etc.)');
+    } catch (error) {
+      console.error('Error uploading audio:', error);
+      alert('Error uploading audio');
+    } finally {
+      setUploadingAudio(false);
+    }
+  };
+
   // Authentication check
   const handleLogin = () => {
     if (credentials.username === 'admin' && credentials.password === 'admin123') {
@@ -191,12 +227,14 @@ const Admin: React.FC = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [recipesRes, workoutsRes] = await Promise.all([
+      const [recipesRes, workoutsRes, meditationsRes] = await Promise.all([
         axios.get(API_ENDPOINTS.ADMIN_RECIPES, { headers: adminHeaders }),
-        axios.get(API_ENDPOINTS.ADMIN_WORKOUTS, { headers: adminHeaders })
+        axios.get(API_ENDPOINTS.ADMIN_WORKOUTS, { headers: adminHeaders }),
+        axios.get(`${API_BASE_URL}/api/aimind/meditation/library`)
       ]);
       setRecipes(recipesRes.data.recipes || []);
       setWorkouts(workoutsRes.data.workouts || []);
+      setMeditations(meditationsRes.data.meditations || []);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -463,6 +501,15 @@ const Admin: React.FC = () => {
               <span>Workouts ({workouts.length})</span>
             </button>
             <button
+              onClick={() => setActiveTab('meditations')}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-xl font-medium transition-all ${
+                activeTab === 'meditations' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              <Brain size={20} />
+              <span>Meditations ({meditations.length})</span>
+            </button>
+            <button
               onClick={() => setActiveTab('analytics')}
               className={`flex items-center space-x-2 px-4 py-2 rounded-xl font-medium transition-all ${
                 activeTab === 'analytics' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -592,6 +639,87 @@ const Admin: React.FC = () => {
                           <span>Delete</span>
                         </button>
                       </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        )}
+
+        {activeTab === 'meditations' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-gray-800">Meditation Management</h2>
+              <button
+                onClick={() => {
+                  setMeditationForm({ title: '', category: 'sleep', duration: 10, description: '', audioUrl: '' });
+                  setEditingMeditation(null);
+                  setShowMeditationModal(true);
+                }}
+                className="bg-purple-600 text-white px-4 py-2 rounded-xl font-medium hover:bg-purple-700 transition-colors flex items-center space-x-2"
+              >
+                <Plus size={20} />
+                <span>Add Meditation</span>
+              </button>
+            </div>
+
+            {loading ? (
+              <div className="text-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading meditations...</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {meditations.map((meditation) => (
+                  <div key={meditation.id} className="bg-white rounded-2xl shadow-lg p-4">
+                    <h3 className="font-semibold text-gray-800 mb-2">{meditation.title}</h3>
+                    <div className="flex items-center justify-between text-sm text-gray-600 mb-3">
+                      <span>{meditation.category}</span>
+                      <span>{meditation.duration} min</span>
+                    </div>
+                    {meditation.description && (
+                      <p className="text-sm text-gray-600 mb-3">{meditation.description}</p>
+                    )}
+                    {meditation.audio_url && (
+                      <audio controls className="w-full mb-3" src={meditation.audio_url} />
+                    )}
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => {
+                          setEditingMeditation(meditation);
+                          setMeditationForm({
+                            title: meditation.title,
+                            category: meditation.category,
+                            duration: meditation.duration,
+                            description: meditation.description || '',
+                            audioUrl: meditation.audio_url || ''
+                          });
+                          setShowMeditationModal(true);
+                        }}
+                        className="flex-1 bg-blue-100 text-blue-700 py-2 rounded-lg font-medium hover:bg-blue-200 transition-colors"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={async () => {
+                          if (confirm('Delete this meditation?')) {
+                            try {
+                              // Add delete endpoint if needed
+                              fetchData();
+                            } catch (error) {
+                              alert('Error deleting meditation');
+                            }
+                          }
+                        }}
+                        className="flex-1 bg-red-100 text-red-700 py-2 rounded-lg font-medium hover:bg-red-200 transition-colors"
+                      >
+                        Delete
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -1028,6 +1156,124 @@ const Admin: React.FC = () => {
               >
                 <Save size={20} />
                 <span>{editingWorkout ? 'Update Workout' : 'Save Workout'}</span>
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+
+      {/* Meditation Modal */}
+      {showMeditationModal && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-6"
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold text-gray-800">
+                {editingMeditation ? 'Edit Meditation' : 'Add New Meditation'}
+              </h3>
+              <button
+                onClick={() => setShowMeditationModal(false)}
+                className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center"
+              >
+                <X size={16} className="text-gray-600" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <input
+                type="text"
+                placeholder="Meditation Title"
+                value={meditationForm.title}
+                onChange={(e) => setMeditationForm({ ...meditationForm, title: e.target.value })}
+                className="w-full p-3 border border-gray-300 rounded-xl focus:border-purple-500 focus:outline-none"
+              />
+
+              <select
+                value={meditationForm.category}
+                onChange={(e) => setMeditationForm({ ...meditationForm, category: e.target.value })}
+                className="w-full p-3 border border-gray-300 rounded-xl focus:border-purple-500 focus:outline-none"
+              >
+                <option value="sleep">Better Sleep</option>
+                <option value="morning">Morning Boost</option>
+                <option value="focus">Focus</option>
+                <option value="self-love">Self-Love</option>
+                <option value="anxiety">Anxiety Relief</option>
+              </select>
+
+              <input
+                type="number"
+                placeholder="Duration (minutes)"
+                value={meditationForm.duration || ''}
+                onChange={(e) => setMeditationForm({ ...meditationForm, duration: Number(e.target.value) })}
+                className="w-full p-3 border border-gray-300 rounded-xl focus:border-purple-500 focus:outline-none"
+              />
+
+              <textarea
+                placeholder="Description"
+                value={meditationForm.description}
+                onChange={(e) => setMeditationForm({ ...meditationForm, description: e.target.value })}
+                className="w-full p-3 border border-gray-300 rounded-xl focus:border-purple-500 focus:outline-none h-24 resize-none"
+              />
+
+              <div className="space-y-2">
+                <input
+                  type="url"
+                  placeholder="Audio URL (or upload file below)"
+                  value={meditationForm.audioUrl}
+                  onChange={(e) => setMeditationForm({ ...meditationForm, audioUrl: e.target.value })}
+                  className="w-full p-3 border border-gray-300 rounded-xl focus:border-purple-500 focus:outline-none"
+                />
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="file"
+                    accept="audio/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleAudioUpload(file);
+                    }}
+                    className="flex-1 text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-medium file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
+                  />
+                  {uploadingAudio && (
+                    <div className="text-sm text-purple-600">Uploading...</div>
+                  )}
+                </div>
+                {meditationForm.audioUrl && (
+                  <audio controls className="w-full" src={meditationForm.audioUrl} />
+                )}
+              </div>
+            </div>
+
+            <div className="flex space-x-3 mt-6">
+              <button
+                onClick={() => setShowMeditationModal(false)}
+                className="flex-1 py-3 border border-gray-300 rounded-xl font-medium text-gray-700"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    await axios.post(`${API_BASE_URL}/api/admin/meditation`, meditationForm, {
+                      headers: adminHeaders
+                    });
+                    fetchData();
+                    setShowMeditationModal(false);
+                    setMeditationForm({ title: '', category: 'sleep', duration: 10, description: '', audioUrl: '' });
+                  } catch (error) {
+                    console.error('Error saving meditation:', error);
+                    alert('Error saving meditation');
+                  }
+                }}
+                className="flex-1 py-3 bg-purple-600 text-white rounded-xl font-medium hover:bg-purple-700 transition-colors"
+              >
+                {editingMeditation ? 'Update' : 'Save'} Meditation
               </button>
             </div>
           </motion.div>

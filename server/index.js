@@ -7,6 +7,7 @@ import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
+import personalizationRouter from './routes/personalization.js';
 
 dotenv.config();
 
@@ -25,6 +26,9 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Personalization routes
+app.use('/api/personalized-plan', personalizationRouter);
 
 // API Keys
 const FATSECRET_API_KEY = process.env.FATSECRET_API_KEY || '0a600ff8aa184268a1e7026b99b7cae4';
@@ -1699,4 +1703,7 @@ app.listen(PORT, () => {
   console.log(`\n📱 Public Endpoints:`);
   console.log(`GET    /api/recipes           - Get recipes (with filters)`);
   console.log(`GET    /api/workouts          - Get workouts (with filters)`);
+  console.log(`\n🎯 Personalization Endpoints:`);
+  console.log(`GET    /api/personalized-plan - Get personalized plan`);
+  console.log(`POST   /api/personalized-plan/regenerate - Regenerate plan (premium/trial)`);
 });

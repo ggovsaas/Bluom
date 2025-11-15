@@ -43,6 +43,8 @@ interface UserProfile {
   dailyFat: number;
   bmr: number;
   tdee: number;
+  trialStartDate?: string; // ISO date string when trial started
+  trialEndDate?: string; // ISO date string when trial ends (3 days after start)
 }
 
 interface FoodEntry {
@@ -101,6 +103,9 @@ interface UserContextType {
   getUsedDays: () => string[];
   getCurrentDate: () => string;
   getTodayTotals: () => { calories: number; protein: number; carbs: number; fat: number };
+  hasActiveTrial: () => boolean;
+  isPremiumOrTrial: () => boolean;
+  startTrial: () => Promise<void>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -151,7 +156,18 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const savedExerciseEntries = await AsyncStorage.getItem('aifit_exercise_entries');
       
       if (savedProfile) {
-        setProfile(JSON.parse(savedProfile));
+        const parsedProfile = JSON.parse(savedProfile);
+        setProfile(parsedProfile);
+        
+        // Check if trial has expired
+        if (parsedProfile.trialEndDate && !parsedProfile.isPremium) {
+          const trialEnd = new Date(parsedProfile.trialEndDate);
+          const now = new Date();
+          if (now > trialEnd) {
+            // Trial expired, ensure isPremium is false
+            await updateProfile({ isPremium: false });
+          }
+        }
       }
       
       if (savedFoodEntries) {
@@ -301,6 +317,34 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
   };
 
+  const hasActiveTrial = (): boolean => {
+    if (!profile) return false;
+    if (profile.isPremium) return false; // Premium users don't need trial
+    if (!profile.trialEndDate) return false;
+    
+    const trialEnd = new Date(profile.trialEndDate);
+    const now = new Date();
+    return now <= trialEnd;
+  };
+
+  const isPremiumOrTrial = (): boolean => {
+    if (!profile) return false;
+    return profile.isPremium || hasActiveTrial();
+  };
+
+  const startTrial = async (): Promise<void> => {
+    if (!profile) return;
+    
+    const now = new Date();
+    const trialEnd = new Date(now);
+    trialEnd.setDate(trialEnd.getDate() + 3); // 3-day trial
+    
+    await updateProfile({
+      trialStartDate: now.toISOString(),
+      trialEndDate: trialEnd.toISOString(),
+    });
+  };
+
   return (
     <UserContext.Provider value={{ 
       profile, 
@@ -317,7 +361,10 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       getExerciseEntriesForDate,
       getUsedDays,
       getCurrentDate,
-      getTodayTotals
+      getTodayTotals,
+      hasActiveTrial,
+      isPremiumOrTrial,
+      startTrial
     }}>
       {children}
     </UserContext.Provider>

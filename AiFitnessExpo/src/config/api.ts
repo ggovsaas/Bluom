@@ -1,29 +1,15 @@
 // API Configuration for different environments
 const getApiBaseUrl = () => {
   // Check for custom API URL in environment variables first
-  if (import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
-  }
-  
-  // Check if we're in development (only for localhost)
-  if (import.meta.env.DEV && window.location.hostname === 'localhost') {
-    return 'http://localhost:3001';
+  if (process.env.EXPO_PUBLIC_API_URL) {
+    return process.env.EXPO_PUBLIC_API_URL;
   }
   
   // Production backend URL (Vercel serverless functions)
   return 'https://aifitnessapp.vercel.app';
 };
 
-// Force production URL for debugging
-const FORCE_PRODUCTION = true;
-const getApiBaseUrlForced = () => {
-  if (FORCE_PRODUCTION) {
-    return 'https://aifitnessapp.vercel.app';
-  }
-  return getApiBaseUrl();
-};
-
-export const API_BASE_URL = getApiBaseUrlForced();
+export const API_BASE_URL = getApiBaseUrl();
 
 // API endpoints
 export const API_ENDPOINTS = {
@@ -51,8 +37,11 @@ export const API_ENDPOINTS = {
   
   // Health check
   HEALTH: `${API_BASE_URL}/api/health`,
+  
+  // Personalization endpoints
+  PERSONALIZED_PLAN: `${API_BASE_URL}/api/personalized-plan`,
+  REGENERATE_PLAN: `${API_BASE_URL}/api/personalized-plan/regenerate`,
 } as const;
 
 export default API_BASE_URL;
-
 

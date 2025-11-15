@@ -555,7 +555,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
               <span className="text-white text-3xl">✨</span>
             </div>
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Welcome to AiFit!
+              Welcome to BloomYou!
             </h1>
             <p className="text-xl text-gray-600 mb-8">
               Let's personalize your fitness journey with a few quick questions
@@ -604,7 +604,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6 relative">
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 relative bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* Skip Button */}
       <button
         onClick={skipOnboarding}

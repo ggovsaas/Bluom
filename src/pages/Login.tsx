@@ -87,7 +87,7 @@ export default function Login() {
           <div className="w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <span className="text-white text-2xl">✨</span>
           </div>
-          <h2 className="text-3xl font-bold text-gray-900">Welcome to AiFit</h2>
+          <h2 className="text-3xl font-bold text-gray-900">Welcome to BloomYou</h2>
           <p className="mt-2 text-gray-600">Sign in to your account to continue</p>
         </div>
 
@@ -160,6 +160,19 @@ export default function Login() {
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
               </svg>
               Continue with Google
+            </button>
+
+            {/* TEMPORARY: Bypass button for testing when database is down */}
+            <button
+              type="button"
+              onClick={() => {
+                localStorage.setItem('aifit_bypass_auth', 'true');
+                localStorage.setItem('aifit_user', JSON.stringify({ name: 'Test User', email: 'test@example.com' }));
+                navigate('/app');
+              }}
+              className="w-full flex justify-center py-3 px-4 border border-red-300 rounded-lg shadow-sm text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 mt-3"
+            >
+              🚨 BYPASS AUTH (Database Down)
             </button>
           </form>
 

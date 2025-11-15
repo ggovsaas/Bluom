@@ -31,37 +31,24 @@ const Header: React.FC = () => {
           <div className="w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-600 rounded-lg flex items-center justify-center">
             <span className="text-white text-sm font-bold">✨</span>
           </div>
-          <span className="text-xl font-bold text-gray-900">AiFit</span>
+          <span className="text-xl font-bold text-gray-900">BloomYou</span>
         </Link>
 
-        {/* Right side - Login/User menu */}
-        <div className="flex items-center space-x-4">
-          <Link
-            to="/"
-            className="text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-3 py-2 rounded-lg transition-colors"
-          >
-            Landing Page
-          </Link>
+        {/* Right side - Simple avatar or login button */}
+        <div className="flex items-center">
           {isLoggedIn ? (
-            <div className="flex items-center space-x-3">
-              <span className="text-sm text-gray-600">
-                Welcome, {JSON.parse(user || '{}').name || 'User'}
-              </span>
-              <button
-                onClick={handleLogout}
-                className="flex items-center space-x-1 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <LogIn size={16} />
-                <span>Logout</span>
-              </button>
-            </div>
+            <button
+              onClick={handleLogout}
+              className="w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center text-white hover:from-pink-600 hover:to-purple-700 transition-all"
+            >
+              <User size={16} />
+            </button>
           ) : (
             <Link
               to="/login"
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white hover:from-blue-600 hover:to-blue-700 transition-all"
             >
               <LogIn size={16} />
-              <span>Login</span>
             </Link>
           )}
         </div>

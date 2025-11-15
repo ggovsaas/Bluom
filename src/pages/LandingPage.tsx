@@ -30,14 +30,8 @@ export default function LandingPage() {
     setPricing(getPricingForCurrency(detectedCurrency));
   }, []);
 
-  console.log('LandingPage component is rendering!', { userCurrency, pricing });
-
   return (
     <div className="min-h-screen bg-white">
-      {/* Debug test */}
-      <div style={{background: 'red', color: 'white', padding: '20px', textAlign: 'center'}}>
-        LANDING PAGE IS LOADING - If you see this, the component is working!
-      </div>
       {/* Header */}
       <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -47,7 +41,7 @@ export default function LandingPage() {
               <div className="w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-600 rounded-lg flex items-center justify-center">
                 <span className="text-white text-sm font-bold">✨</span>
               </div>
-              <span className="text-2xl font-bold text-gray-900">AiFit</span>
+              <span className="text-2xl font-bold text-gray-900">BloomYou</span>
             </div>
 
             {/* Navigation */}
@@ -103,7 +97,7 @@ export default function LandingPage() {
                       <div className="w-full h-full bg-white rounded-2xl overflow-hidden">
                         <img 
                           src="/images/app-store/screenshot-home-iphone.png" 
-                          alt="AiFit Home Dashboard"
+                          alt="BloomYou Home Dashboard"
                           className="w-full h-full object-cover"
                           onError={(e) => {
                             // Fallback to placeholder if image doesn't exist
@@ -133,7 +127,7 @@ export default function LandingPage() {
                       <div className="w-full h-full bg-white rounded-2xl overflow-hidden">
                         <img 
                           src="/images/app-store/screenshot-fuel-iphone.png" 
-                          alt="AiFit Nutrition Tracking"
+                          alt="BloomYou Nutrition Tracking"
                           className="w-full h-full object-cover"
                           onError={(e) => {
                             // Fallback to placeholder if image doesn't exist
@@ -165,10 +159,10 @@ export default function LandingPage() {
               className="text-center lg:text-left"
             >
               <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
-                AI Fitness. Simplified.
+                Your Wellness Journey
               </h1>
               <p className="text-xl text-gray-600 mb-8 max-w-2xl">
-                Reach your goals with the #1 AI-powered fitness and nutrition tracker. AiFit is the only app you'll ever need.
+                Reach your goals with the #1 AI-powered fitness and wellness tracker. BloomYou is the only app you'll ever need.
               </p>
               <Link
                 to="/onboarding"
@@ -331,7 +325,7 @@ export default function LandingPage() {
                   <div className="w-full h-full bg-white rounded-2xl overflow-hidden">
                     <img 
                       src="/images/app-store/screenshot-move-iphone.png" 
-                      alt="AiFit Workout Tracking"
+                          alt="BloomYou Workout Tracking"
                       className="w-full h-full object-cover"
                       onError={(e) => {
                         // Fallback to placeholder if image doesn't exist
@@ -354,7 +348,7 @@ export default function LandingPage() {
                   <div className="w-full h-full bg-white rounded-2xl overflow-hidden">
                     <img 
                       src="/images/app-store/screenshot-wellness-iphone.png" 
-                      alt="AiFit Wellness Tracking"
+                      alt="BloomYou Wellness Tracking"
                       className="w-full h-full object-cover"
                       onError={(e) => {
                         // Fallback to placeholder if image doesn't exist
@@ -861,7 +855,7 @@ export default function LandingPage() {
                 <div className="w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-600 rounded-lg flex items-center justify-center">
                   <span className="text-white text-sm font-bold">✨</span>
                 </div>
-                <span className="text-2xl font-bold text-gray-900">AiFit</span>
+                <span className="text-2xl font-bold text-gray-900">BloomYou</span>
               </div>
               <p className="text-gray-600 mb-4">
                 Your AI-powered fitness companion. Track nutrition, log workouts, and achieve your goals with intelligent insights.
@@ -911,7 +905,7 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="border-t border-gray-200 mt-8 pt-8 text-center">
-            <p className="text-gray-500">&copy; 2024 AiFit. Your AI-powered fitness companion</p>
+            <p className="text-gray-500">&copy; 2024 BloomYou. Your wellness companion</p>
           </div>
         </div>
       </footer>

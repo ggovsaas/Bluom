@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
-import { StatusBar, StyleSheet, View } from 'react-native';
+import { StatusBar, StyleSheet, View, Text } from 'react-native';
+import { SafeAreaView, SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Import screens
@@ -11,7 +13,13 @@ import HomeScreen from './src/pages/Home';
 import FuelScreen from './src/pages/Fuel';
 import MoveScreen from './src/pages/Move';
 import WellnessScreen from './src/pages/Wellness';
-import ProgressScreen from './src/pages/Progress';
+import ProfileScreen from './src/pages/Profile';
+import PremiumScreen from './src/pages/Premium';
+import RecipesScreen from './src/pages/Recipes';
+import WorkoutsScreen from './src/pages/Workouts';
+import SoundSettingsScreen from './src/pages/SoundSettings';
+import NotificationSettingsScreen from './src/pages/NotificationSettings';
+import PlansScreen from './src/pages/Plans';
 
 // Import context
 import { UserProvider } from './src/context/UserContext';
@@ -20,21 +28,30 @@ import { UserProvider } from './src/context/UserContext';
 type RootStackParamList = {
   MainTabs: undefined;
   Onboarding: undefined;
+  Profile: undefined;
+  Premium: undefined;
+  Recipes: undefined;
+  Workouts: undefined;
+  SoundSettings: undefined;
+  NotificationSettings: undefined;
+  Plans: undefined;
 };
 
 type MainTabParamList = {
-  Home: undefined;
-  Fuel: undefined;
-  Move: undefined;
-  Wellness: undefined;
-  Progress: undefined;
-};
+      Home: undefined;
+      Fuel: undefined;
+      Move: undefined;
+      Wellness: undefined;
+      Profile: undefined;
+    };
 
 const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
 // Main Tab Navigator
 function MainTabNavigator() {
+  const insets = useSafeAreaInsets();
+  
   return (
     <Tab.Navigator
       screenOptions={{
@@ -43,9 +60,9 @@ function MainTabNavigator() {
           backgroundColor: '#ffffff',
           borderTopWidth: 1,
           borderTopColor: '#e5e7eb',
-          paddingBottom: 5,
-          paddingTop: 5,
-          height: 60,
+          paddingBottom: Math.max(insets.bottom, 8),
+          paddingTop: 8,
+          height: 65 + Math.max(insets.bottom - 8, 0),
         },
         tabBarActiveTintColor: '#3b82f6',
         tabBarInactiveTintColor: '#6b7280',
@@ -56,7 +73,7 @@ function MainTabNavigator() {
         component={HomeScreen}
         options={{
           tabBarLabel: 'Home',
-          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>🏠</Text>
+          tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size || 24} color={color} />
         }}
       />
       <Tab.Screen 
@@ -64,7 +81,7 @@ function MainTabNavigator() {
         component={FuelScreen}
         options={{
           tabBarLabel: 'Fuel',
-          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>🍎</Text>
+          tabBarIcon: ({ color, size }) => <Ionicons name="restaurant" size={size || 24} color={color} />
         }}
       />
       <Tab.Screen 
@@ -72,7 +89,7 @@ function MainTabNavigator() {
         component={MoveScreen}
         options={{
           tabBarLabel: 'Move',
-          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>🏋️</Text>
+          tabBarIcon: ({ color, size }) => <Ionicons name="barbell" size={size || 24} color={color} />
         }}
       />
       <Tab.Screen 
@@ -80,15 +97,15 @@ function MainTabNavigator() {
         component={WellnessScreen}
         options={{
           tabBarLabel: 'Wellness',
-          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>🧘</Text>
+          tabBarIcon: ({ color, size }) => <Ionicons name="leaf" size={size || 24} color={color} />
         }}
       />
       <Tab.Screen 
-        name="Progress" 
-        component={ProgressScreen}
+        name="Profile" 
+        component={ProfileScreen}
         options={{
-          tabBarLabel: 'Progress',
-          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>📊</Text>
+          tabBarLabel: 'Profile',
+          tabBarIcon: ({ color, size }) => <Ionicons name="person" size={size || 24} color={color} />
         }}
       />
     </Tab.Navigator>
@@ -127,33 +144,40 @@ function App(): React.JSX.Element {
 
   if (isLoading) {
     return (
-      <View style={styles.loadingContainer}>
+      <SafeAreaView style={styles.loadingContainer} edges={['top', 'bottom']}>
         <Text style={styles.loadingText}>Loading AiFit...</Text>
-      </View>
+      </SafeAreaView>
     );
   }
 
   if (showOnboarding) {
     return (
       <UserProvider>
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
           <OnboardingScreen onComplete={handleOnboardingComplete} />
-        </View>
+        </SafeAreaView>
       </UserProvider>
     );
   }
 
   return (
-    <UserProvider>
-      <NavigationContainer>
-        <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
-    <View style={styles.container}>
-          <Stack.Navigator screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="MainTabs" component={MainTabNavigator} />
-          </Stack.Navigator>
-    </View>
-      </NavigationContainer>
-    </UserProvider>
+    <SafeAreaProvider>
+      <UserProvider>
+        <NavigationContainer>
+          <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+              <Stack.Navigator screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="MainTabs" component={MainTabNavigator} />
+                <Stack.Screen name="Profile" component={ProfileScreen} />
+                <Stack.Screen name="Premium" component={PremiumScreen} />
+                <Stack.Screen name="Recipes" component={RecipesScreen} />
+                <Stack.Screen name="Workouts" component={WorkoutsScreen} />
+                <Stack.Screen name="SoundSettings" component={SoundSettingsScreen} />
+                <Stack.Screen name="NotificationSettings" component={NotificationSettingsScreen} />
+                <Stack.Screen name="Plans" component={PlansScreen} />
+              </Stack.Navigator>
+        </NavigationContainer>
+      </UserProvider>
+    </SafeAreaProvider>
   );
 }
 

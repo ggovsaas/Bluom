@@ -68,6 +68,14 @@ function App() {
     const hasSignedUp = localStorage.getItem('aifit_signed_up');
     const hasCompletedOnboarding = localStorage.getItem('aifit_onboarding_completed');
     
+    // TEMPORARY: Allow bypass for testing when database is down
+    const bypassAuth = localStorage.getItem('aifit_bypass_auth');
+    if (bypassAuth === 'true') {
+      setIsAuthenticated(true);
+      setIsLoading(false);
+      return;
+    }
+    
     if (user) {
       // User is logged in
       setIsAuthenticated(true);
@@ -115,53 +123,53 @@ function App() {
   }
 
   return (
-        <UserProvider>
-          <Router>
-            <Routes>
-              <Route path="/landingpage" element={<LandingPage />} />
-              <Route path="/*" element={
-                <div className="min-h-screen">
-                  <AppHeader />
-                  <AnimatePresence mode="wait">
-                    <motion.div
-                      key="app-content"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="pb-20"
-                    >
-                      <Routes>
-                        <Route path="/" element={isAuthenticated ? <Home /> : <Login />} />
-                        <Route path="/login" element={<Login />} />
-                        <Route path="/signup" element={<Signup />} />
-                        <Route path="/onboarding" element={<Onboarding onComplete={handleOnboardingComplete} />} />
-                        <Route path="/app" element={isAuthenticated ? <Home /> : <Login />} />
-                <Route path="/fuel" element={isAuthenticated ? <Fuel /> : <Login />} />
-                <Route path="/move" element={isAuthenticated ? <Move /> : <Login />} />
-                <Route path="/wellness" element={isAuthenticated ? <Wellness /> : <Login />} />
-                <Route path="/progress" element={isAuthenticated ? <Progress /> : <Login />} />
-                <Route path="/premium" element={isAuthenticated ? <Premium /> : <Login />} />
-                <Route path="/profile" element={isAuthenticated ? <Profile /> : <Login />} />
-                <Route path="/recipes" element={isAuthenticated ? <Recipes /> : <Login />} />
-                <Route path="/workouts" element={isAuthenticated ? <Workouts /> : <Login />} />
-                <Route path="/friends" element={isAuthenticated ? <Friends /> : <Login />} />
-                <Route path="/settings" element={isAuthenticated ? <Settings /> : <Login />} />
-                <Route path="/notifications" element={isAuthenticated ? <Notifications /> : <Login />} />
-                <Route path="/privacy" element={isAuthenticated ? <Privacy /> : <Login />} />
-                <Route path="/help" element={isAuthenticated ? <Help /> : <Login />} />
-                <Route path="/admin" element={isAuthenticated ? <Admin /> : <Login />} />
-                <Route path="/create-recipe" element={isAuthenticated ? <CreateRecipe /> : <Login />} />
-                <Route path="/my-recipes" element={isAuthenticated ? <MyRecipes /> : <Login />} />
-                      </Routes>
-                    </motion.div>
-                  </AnimatePresence>
-                  <AppNavigation />
-                </div>
-              } />
-            </Routes>
-          </Router>
-        </UserProvider>
+    <UserProvider>
+      <Router>
+        <Routes>
+          <Route path="/landingpage" element={<LandingPage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/onboarding" element={<Onboarding onComplete={handleOnboardingComplete} />} />
+          <Route path="/*" element={
+            <div className="min-h-screen">
+              <AppHeader />
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key="app-content"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="pb-20"
+                >
+                  <Routes>
+                    <Route path="/" element={isAuthenticated ? <Home /> : <Login />} />
+                    <Route path="/app" element={isAuthenticated ? <Home /> : <Login />} />
+                    <Route path="/fuel" element={isAuthenticated ? <Fuel /> : <Login />} />
+                    <Route path="/move" element={isAuthenticated ? <Move /> : <Login />} />
+                    <Route path="/wellness" element={isAuthenticated ? <Wellness /> : <Login />} />
+                    <Route path="/progress" element={isAuthenticated ? <Progress /> : <Login />} />
+                    <Route path="/premium" element={isAuthenticated ? <Premium /> : <Login />} />
+                    <Route path="/profile" element={isAuthenticated ? <Profile /> : <Login />} />
+                    <Route path="/recipes" element={isAuthenticated ? <Recipes /> : <Login />} />
+                    <Route path="/workouts" element={isAuthenticated ? <Workouts /> : <Login />} />
+                    <Route path="/friends" element={isAuthenticated ? <Friends /> : <Login />} />
+                    <Route path="/settings" element={isAuthenticated ? <Settings /> : <Login />} />
+                    <Route path="/notifications" element={isAuthenticated ? <Notifications /> : <Login />} />
+                    <Route path="/privacy" element={isAuthenticated ? <Privacy /> : <Login />} />
+                    <Route path="/help" element={isAuthenticated ? <Help /> : <Login />} />
+                    <Route path="/admin" element={isAuthenticated ? <Admin /> : <Login />} />
+                    <Route path="/create-recipe" element={isAuthenticated ? <CreateRecipe /> : <Login />} />
+                    <Route path="/my-recipes" element={isAuthenticated ? <MyRecipes /> : <Login />} />
+                  </Routes>
+                </motion.div>
+              </AnimatePresence>
+              <AppNavigation />
+            </div>
+          } />
+        </Routes>
+      </Router>
+    </UserProvider>
   );
 }
 

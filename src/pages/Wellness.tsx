@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Moon, 
@@ -27,9 +27,17 @@ import {
   Circle,
   Edit3,
   Trash2,
-  X
+  X,
+  Sparkles,
+  PenTool,
+  Gamepad2,
+  BarChart3
 } from 'lucide-react';
 import { useUser } from '../context/UserContext';
+import axios from 'axios';
+import { API_ENDPOINTS } from '../config/api';
+import MeditationHub from '../components/MeditationHub';
+import GamesHub from '../components/GamesHub';
 
 interface Habit {
   id: string;
@@ -57,6 +65,33 @@ const Wellness: React.FC = () => {
     icon: 'Target',
     category: 'Health'
   });
+
+  // AIMind state
+  const [showMeditationHub, setShowMeditationHub] = useState(false);
+  const [showGratitudeModal, setShowGratitudeModal] = useState(false);
+  const [showJournalModal, setShowJournalModal] = useState(false);
+  const [showInsightsModal, setShowInsightsModal] = useState(false);
+  const [showGamesHub, setShowGamesHub] = useState(false);
+  const [gratitudeEntry, setGratitudeEntry] = useState('');
+  const [gratitudeEntries, setGratitudeEntries] = useState<any[]>([]);
+  const [journalContent, setJournalContent] = useState('');
+  const [journalEntries, setJournalEntries] = useState<any[]>([]);
+  const [insights, setInsights] = useState<any>(null);
+  const [loadingInsights, setLoadingInsights] = useState(false);
+
+  // Get userId from localStorage or default to 1
+  const getUserId = () => {
+    try {
+      const userStr = localStorage.getItem('aifit_user');
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        return user.id || 1;
+      }
+    } catch (e) {
+      console.error('Error getting user ID:', e);
+    }
+    return 1;
+  };
 
   const currentDate = getCurrentDate();
 
@@ -226,6 +261,121 @@ const Wellness: React.FC = () => {
       setHabits(defaultHabits);
     }
   }, []);
+
+  // Load AIMind data
+  useEffect(() => {
+    const userId = getUserId();
+    fetchGratitudeEntries(userId);
+    fetchJournalEntries(userId);
+    fetchInsights(userId);
+  }, []);
+
+  // Fetch gratitude entries
+  const fetchGratitudeEntries = async (userId: number) => {
+    try {
+      const response = await axios.get(API_ENDPOINTS.AIMIND_GRATITUDE, {
+        params: { userId, limit: 10 }
+      });
+      if (response.data.success) {
+        setGratitudeEntries(response.data.entries);
+      }
+    } catch (error) {
+      console.error('Error fetching gratitude entries:', error);
+    }
+  };
+
+  // Fetch journal entries
+  const fetchJournalEntries = async (userId: number) => {
+    try {
+      const response = await axios.get(API_ENDPOINTS.AIMIND_JOURNAL, {
+        params: { userId, limit: 5 }
+      });
+      if (response.data.success) {
+        setJournalEntries(response.data.entries);
+      }
+    } catch (error) {
+      console.error('Error fetching journal entries:', error);
+    }
+  };
+
+  // Fetch insights
+  const fetchInsights = async (userId: number) => {
+    setLoadingInsights(true);
+    try {
+      const response = await axios.get(API_ENDPOINTS.AIMIND_INSIGHTS, {
+        params: { userId }
+      });
+      if (response.data.success) {
+        setInsights(response.data.insights);
+      }
+    } catch (error) {
+      console.error('Error fetching insights:', error);
+    } finally {
+      setLoadingInsights(false);
+    }
+  };
+
+  // Save gratitude entry
+  const saveGratitude = async () => {
+    if (!gratitudeEntry.trim()) return;
+    
+    const userId = getUserId();
+    try {
+      await axios.post(API_ENDPOINTS.AIMIND_GRATITUDE, {
+        userId,
+        entry: gratitudeEntry
+      });
+      setGratitudeEntry('');
+      setShowGratitudeModal(false);
+      fetchGratitudeEntries(userId);
+    } catch (error) {
+      console.error('Error saving gratitude:', error);
+      alert('Failed to save gratitude entry');
+    }
+  };
+
+  // Save journal entry
+  const saveJournal = async () => {
+    if (!journalContent.trim()) return;
+    
+    const userId = getUserId();
+    try {
+      await axios.post(API_ENDPOINTS.AIMIND_JOURNAL, {
+        userId,
+        content: journalContent,
+        moodTag: dailyData.mood || null
+      });
+      setJournalContent('');
+      setShowJournalModal(false);
+      fetchJournalEntries(userId);
+      fetchInsights(userId); // Refresh insights
+    } catch (error) {
+      console.error('Error saving journal:', error);
+      alert('Failed to save journal entry');
+    }
+  };
+
+  // Open meditation hub
+  const startMeditation = () => {
+    setShowMeditationHub(true);
+  };
+
+  // Open games hub
+  const startGame = () => {
+    setShowGamesHub(true);
+  };
+
+  // Handle game completion
+  const handleGameComplete = async (result: any) => {
+    const userId = getUserId();
+    try {
+      // Save game results (you can add API endpoint later)
+      console.log('Game result:', result);
+      // Could save to backend here
+    } catch (error) {
+      console.error('Error saving game result:', error);
+    }
+  };
 
   // Save habits to localStorage
   const saveHabits = (updatedHabits: Habit[]) => {
@@ -587,11 +737,98 @@ const Wellness: React.FC = () => {
           </div>
         </motion.div>
 
-        {/* Mindfulness */}
+        {/* AIMind Hub */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
+          className="bg-white rounded-2xl p-6 shadow-lg mb-6"
+        >
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-800">🧠 AIMind Hub</h3>
+              <p className="text-sm text-gray-600">Meditation, gratitude, journaling & insights</p>
+            </div>
+            <Brain className="text-indigo-600" size={24} />
+          </div>
+
+          {/* AIMind Cards Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                startMeditation();
+              }}
+              className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white p-4 rounded-xl hover:shadow-lg transition-all transform hover:scale-105"
+            >
+              <Brain className="mx-auto mb-2" size={24} />
+              <p className="text-xs font-medium">Meditate</p>
+            </button>
+            
+            <button
+              onClick={() => setShowGratitudeModal(true)}
+              className="bg-gradient-to-br from-pink-400 to-rose-500 text-white p-4 rounded-xl hover:shadow-lg transition-all transform hover:scale-105"
+            >
+              <Heart className="mx-auto mb-2" size={24} />
+              <p className="text-xs font-medium">Gratitude</p>
+            </button>
+            
+            <button
+              onClick={() => setShowJournalModal(true)}
+              className="bg-gradient-to-br from-yellow-400 to-orange-500 text-white p-4 rounded-xl hover:shadow-lg transition-all transform hover:scale-105"
+            >
+              <PenTool className="mx-auto mb-2" size={24} />
+              <p className="text-xs font-medium">Journal</p>
+            </button>
+            
+            <button
+              onClick={() => setShowInsightsModal(true)}
+              className="bg-gradient-to-br from-teal-400 to-green-500 text-white p-4 rounded-xl hover:shadow-lg transition-all transform hover:scale-105"
+            >
+              <BarChart3 className="mx-auto mb-2" size={24} />
+              <p className="text-xs font-medium">Insights</p>
+            </button>
+            
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                startGame();
+              }}
+              className="bg-gradient-to-br from-purple-400 to-indigo-500 text-white p-4 rounded-xl hover:shadow-lg transition-all transform hover:scale-105"
+            >
+              <Gamepad2 className="mx-auto mb-2" size={24} />
+              <p className="text-xs font-medium">Games</p>
+            </button>
+          </div>
+
+          {/* Quick Stats */}
+          <div className="grid grid-cols-3 gap-3 text-center">
+            <div className="bg-indigo-50 rounded-xl p-3">
+              <p className="text-lg font-bold text-indigo-600">{gratitudeEntries.length}</p>
+              <p className="text-xs text-gray-600">Gratitude Entries</p>
+            </div>
+            <div className="bg-yellow-50 rounded-xl p-3">
+              <p className="text-lg font-bold text-yellow-600">{journalEntries.length}</p>
+              <p className="text-xs text-gray-600">Journal Entries</p>
+            </div>
+            <div className="bg-teal-50 rounded-xl p-3">
+              <p className="text-lg font-bold text-teal-600">
+                {insights ? `${insights.calmnessScore}%` : '--'}
+              </p>
+              <p className="text-xs text-gray-600">Calmness Score</p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Mindfulness */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
           className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-6 text-white mb-6"
         >
           <div className="flex items-center justify-between mb-4">
@@ -607,7 +844,15 @@ const Wellness: React.FC = () => {
               <p className="text-sm opacity-75">Tonight's Session</p>
               <p className="font-semibold">Deep Sleep Journey</p>
             </div>
-            <button className="bg-white bg-opacity-20 px-6 py-2 rounded-full font-medium">
+            <button 
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                startMeditation();
+              }}
+              className="bg-white bg-opacity-20 px-6 py-2 rounded-full font-medium hover:bg-opacity-30 transition-all"
+            >
               Start 10 min
             </button>
           </div>
@@ -807,6 +1052,262 @@ const Wellness: React.FC = () => {
             </button>
           </motion.div>
         </motion.div>
+      )}
+
+      {/* Meditation Hub */}
+      {showMeditationHub && (
+        <MeditationHub
+          userId={getUserId()}
+          onClose={() => setShowMeditationHub(false)}
+        />
+      )}
+
+      {/* Gratitude Modal */}
+      {showGratitudeModal && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-6"
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-gray-800">💗 Gratitude</h3>
+              <button
+                onClick={() => setShowGratitudeModal(false)}
+                className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center"
+              >
+                <X size={16} className="text-gray-600" />
+              </button>
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                What are you grateful for today?
+              </label>
+              <textarea
+                placeholder="I'm grateful for..."
+                value={gratitudeEntry}
+                onChange={(e) => setGratitudeEntry(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-xl focus:border-pink-500 focus:outline-none h-24 resize-none"
+              />
+            </div>
+
+            <div className="mb-6">
+              <h4 className="text-sm font-medium text-gray-700 mb-3">Recent Entries</h4>
+              <div className="space-y-2 max-h-48 overflow-y-auto">
+                {gratitudeEntries.length === 0 ? (
+                  <p className="text-sm text-gray-500 text-center py-4">No entries yet</p>
+                ) : (
+                  gratitudeEntries.map((entry) => (
+                    <div key={entry.id} className="bg-pink-50 rounded-lg p-3">
+                      <p className="text-sm text-gray-800">{entry.entry}</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {new Date(entry.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            <div className="flex space-x-3">
+              <button
+                onClick={() => setShowGratitudeModal(false)}
+                className="flex-1 py-3 border border-gray-300 rounded-xl font-medium text-gray-700"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={saveGratitude}
+                disabled={!gratitudeEntry.trim()}
+                className="flex-1 py-3 bg-pink-500 text-white rounded-xl font-medium disabled:bg-gray-300"
+              >
+                Save
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+
+      {/* Journal Modal */}
+      {showJournalModal && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-6"
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-gray-800">✍️ Journal</h3>
+              <button
+                onClick={() => setShowJournalModal(false)}
+                className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center"
+              >
+                <X size={16} className="text-gray-600" />
+              </button>
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                How are you feeling today?
+              </label>
+              <textarea
+                placeholder="Write your thoughts..."
+                value={journalContent}
+                onChange={(e) => setJournalContent(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-xl focus:border-yellow-500 focus:outline-none h-32 resize-none"
+              />
+            </div>
+
+            <div className="mb-6">
+              <h4 className="text-sm font-medium text-gray-700 mb-3">Recent Entries</h4>
+              <div className="space-y-2 max-h-48 overflow-y-auto">
+                {journalEntries.length === 0 ? (
+                  <p className="text-sm text-gray-500 text-center py-4">No entries yet</p>
+                ) : (
+                  journalEntries.map((entry) => (
+                    <div key={entry.id} className="bg-yellow-50 rounded-lg p-3">
+                      <p className="text-sm text-gray-800">{entry.content}</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {new Date(entry.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            <div className="flex space-x-3">
+              <button
+                onClick={() => setShowJournalModal(false)}
+                className="flex-1 py-3 border border-gray-300 rounded-xl font-medium text-gray-700"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={saveJournal}
+                disabled={!journalContent.trim()}
+                className="flex-1 py-3 bg-yellow-500 text-white rounded-xl font-medium disabled:bg-gray-300"
+              >
+                Save
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+
+      {/* Insights Modal */}
+      {showInsightsModal && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-6"
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold text-gray-800">📊 Wellness Insights</h3>
+              <button
+                onClick={() => setShowInsightsModal(false)}
+                className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center"
+              >
+                <X size={16} className="text-gray-600" />
+              </button>
+            </div>
+
+            {loadingInsights ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading insights...</p>
+              </div>
+            ) : insights ? (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-r from-teal-500 to-green-500 text-white rounded-xl p-6 text-center">
+                  <p className="text-4xl font-bold mb-2">{insights.calmnessScore}%</p>
+                  <p className="text-sm opacity-90">Calmness Score</p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-blue-50 rounded-xl p-4 text-center">
+                    <p className="text-2xl font-bold text-blue-600">{insights.avgSleep}h</p>
+                    <p className="text-xs text-gray-600">Avg Sleep</p>
+                  </div>
+                  <div className="bg-purple-50 rounded-xl p-4 text-center">
+                    <p className="text-2xl font-bold text-purple-600">{insights.moodStability}%</p>
+                    <p className="text-xs text-gray-600">Mood Stability</p>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="font-medium text-gray-800 mb-3">Activity Summary</h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Meditations</span>
+                      <span className="font-medium">{insights.meditationCount}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Gratitude Entries</span>
+                      <span className="font-medium">{insights.gratitudeCount}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Journal Entries</span>
+                      <span className="font-medium">{insights.journalCount}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {insights.recommendations && insights.recommendations.length > 0 && (
+                  <div>
+                    <h4 className="font-medium text-gray-800 mb-3">Recommendations</h4>
+                    <div className="space-y-3">
+                      {insights.recommendations.map((rec: any, index: number) => (
+                        <div key={index} className="bg-gray-50 rounded-xl p-4">
+                          <p className="text-sm text-gray-800 mb-1">{rec.message}</p>
+                          <p className="text-xs text-gray-600">{rec.action}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-600">No insights available yet</p>
+                <p className="text-sm text-gray-500 mt-2">Start tracking your wellness to see insights</p>
+              </div>
+            )}
+
+            <button
+              onClick={() => {
+                setShowInsightsModal(false);
+                fetchInsights(getUserId());
+              }}
+              className="w-full mt-6 py-3 bg-teal-600 text-white rounded-xl font-medium hover:bg-teal-700 transition-colors"
+            >
+              Refresh Insights
+            </button>
+          </motion.div>
+        </motion.div>
+      )}
+
+      {/* Games Hub */}
+      {showGamesHub && (
+        <GamesHub
+          userId={getUserId()}
+          onClose={() => setShowGamesHub(false)}
+          onGameComplete={handleGameComplete}
+        />
       )}
     </div>
   );
