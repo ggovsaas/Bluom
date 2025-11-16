@@ -8,6 +8,15 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 import personalizationRouter from './routes/personalization.js';
+import onboardingRouter from './routes/onboarding.js';
+import realtimeRouter from './routes/realtime.js';
+import forecastRouter from './routes/forecast.js';
+import recipesRouter from './routes/recipes.js';
+import streaksRouter from './routes/streaks.js';
+import mealplannerRouter from './routes/mealplanner.js';
+import airecommendationsRouter from './routes/airecommendations.js';
+import notificationsRouter from './routes/notifications.js';
+import meditationworldRouter from './routes/meditationworld.js';
 
 dotenv.config();
 
@@ -27,8 +36,36 @@ app.use(cors({
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Personalization routes
+// Personalization routes (Phase 6)
+app.use('/api/personalize', personalizationRouter);
 app.use('/api/personalized-plan', personalizationRouter);
+
+// Onboarding routes
+app.use('/api/onboarding', onboardingRouter);
+
+// Real-time optimizer routes (Phase 7)
+app.use('/api/realtime', realtimeRouter);
+
+// Workout forecaster routes (Phase 8)
+app.use('/api/forecast', forecastRouter);
+
+// Recipe AI routes (Phase 9B)
+app.use('/api/recipes', recipesRouter);
+
+// Streak Engine routes (Module 12)
+app.use('/api/streaks', streaksRouter);
+
+// Meal Planner routes (Module X)
+app.use('/api/mealplanner', mealplannerRouter);
+
+// AI Recommendations routes (Module W Extended)
+app.use('/api/airecommendations', airecommendationsRouter);
+
+// Notification AI routes (Module AF)
+app.use('/api/notifications', notificationsRouter);
+
+// Meditation World routes (Module AC)
+app.use('/api/meditationworld', meditationworldRouter);
 
 // API Keys
 const FATSECRET_API_KEY = process.env.FATSECRET_API_KEY || '0a600ff8aa184268a1e7026b99b7cae4';
